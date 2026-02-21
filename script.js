@@ -159,4 +159,40 @@ function extension() {
     updateTimerUI();
     alert("Extension Digunakan! +30 Detik");
 }
+function exportToExcel() {
+    if (players.length === 0) {
+        alert("Tidak ada data pemain untuk diekspor!");
+        return;
+    }
+
+    // Header Kolom
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "No,Nama Pemain,Grade,Status\r\n";
+
+    // Isi Data dari Database LocalStorage
+    players.forEach((p, index) => {
+        let row = `${index + 1},${p.name},${p.grade},Terdaftar`;
+        csvContent += row + "\r\n";
+    });
+
+    // Menambahkan info skor terakhir jika perlu
+    const s1 = document.getElementById('score1').innerText;
+    const s2 = document.getElementById('score2').innerText;
+    const p1 = document.getElementById('p1DisplayName').innerText;
+    const p2 = document.getElementById('p2DisplayName').innerText;
+
+    csvContent += `\r\nSKOR PERTANDINGAN TERAKHIR\r\n`;
+    csvContent += `${p1} vs ${p2}\r\n`;
+    csvContent += `Skor: ${s1} - ${s2}\r\n`;
+
+    // Proses Download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Laporan_Turnamen_Billiard.csv");
+    document.body.appendChild(link);
+
+    link.click();
+    document.body.removeChild(link);
+}
 
