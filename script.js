@@ -270,4 +270,75 @@ function updateLeagueTable() {
         </tr>
     `).join('');
 }
+let matchLogs = [];
+
+// Tambahkan ini di window.onload agar riwayat tidak hilang saat refresh
+// (Masukkan ke dalam fungsi window.onload yang sudah ada)
+const savedLogs = localStorage.getItem('billiardLogs');
+if (savedLogs) {
+    matchLogs = JSON.parse(savedLogs);
+    updateMatchHistoryUI();
+}
+
+function finishMatch() {
+    const s1 = parseInt(document.getElementById('score1').innerText);
+    const s2 = parseInt(document.getElementById('score2').innerText);
+    const n1 = document.getElementById('p1DisplayName').innerText;
+    const n2 = document.getElementById('p2DisplayName').innerText;
+
+    if (n1 === "PLAYER 1" || n2 === "PLAYER 2") {
+        alert("Pilih pemain terlebih dahulu!");
+        return;
+    }
+
+    if (!confirm(`Selesaikan pertandingan: ${n1} vs ${n2}?`)) return;
+
+    // 1. Simpan ke Riwayat
+    const newLog = {
+        id: Date.now(),
+        player1: n1,
+        player2: n2,
+        score1: s1,
+        score2: s2,
+        time: new Date().toLocaleTimeString(),
+        winner: s1 > s2 ? n1 : s2 > s1 ? n2 : "Draw"
+    };
+
+    matchLogs.unshift(newLog); // Tambah ke urutan paling atas
+    
+    // 2. Update Poin Klasemen (Logika yang kita bahas sebelumnya)
+    updatePointsLogic(n1, n2, s1, s2);
+
+    // 3. Update UI & Simpan
+    updateMatchHistoryUI();
+    saveToDatabase();
+    
+    // 4. Reset Papan Skor untuk Match Berikutnya
+    document.getElementById('score1').innerText = 0;
+    document.getElementById('score2').innerText = 0;
+}
+
+function updateMatchHistoryUI() {
+    const historyContainer = document.getElementById('matchHistory');
+    if (matchLogs.length === 0) return;
+
+    historyContainer.innerHTML = matchLogs.map(log => `
+        <div class="bg-slate-900 p-4 rounded-xl border-l-4 ${log.score1 > log.score2 ? 'border-blue-500' : 'border-red-500'} flex justify-between items-center shadow-inner">
+            <div>
+                <div class="text-xs text-slate-500 font-bold uppercase">${log.time}</div>
+                <div class="text-sm">
+                    <span class="${log.score1 > log.score2 ? 'font-black text-white' : 'text-slate-400'}">${log.player1}</span>
+                    <span class="mx-2 text-yellow-500 font-bold">${log.score1} - ${log.score2}</span>
+                    <span class="${log.score2 > log.score1 ? 'font-black text-white' : 'text-slate-400'}">${log.player2}</span>
+                </div>
+            </div>
+            <div class="text-[10px] bg-slate-800 px-2 py-1 rounded border border-slate-700 font-bold text-green-400">
+                WINNER: ${log.winner.split(' (')[0]}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Tambahkan 'billiardLogs' ke fungsi saveToDatabase Anda
+localStorage.setItem('billiardLogs', JSON.stringify(matchLogs));
 
