@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Tournament Pro</title>
+    <title>Billiard Pro League System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         .font-digital { font-family: 'Orbitron', sans-serif; }
-        .bracket-card { position: relative; }
-        .bracket-card::after {
-            content: '';
-            position: absolute;
-            right: -24px;
-            top: 50%;
-            width: 24px;
-            height: 2px;
-            background: #4b5563;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-20">
 
-    <nav class="bg-black border-b-2 border-yellow-600 p-4 sticky top-0 z-50">
+    <nav class="bg-black border-b-2 border-yellow-600 p-4 sticky top-0 z-50 shadow-2xl">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-black text-yellow-500 tracking-tighter">🎱 BILLIARD<span class="text-white">PRO</span></h1>
+            <h1 class="text-2xl font-black text-yellow-500 tracking-tighter font-digital">🎱 BILLIARD<span class="text-white">PRO</span></h1>
             <div class="flex space-x-2">
-                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">Export Excel</button>
-                <button onclick="clearDatabase()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-bold">Reset All</button>
+                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-xs font-bold transition">EKSPOR EXCEL</button>
+                <button onclick="clearDatabase()" class="bg-red-700 hover:bg-red-600 px-3 py-1 rounded text-xs font-bold transition">RESET DATA</button>
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto p-4 lg:p-8">
-        
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="space-y-6">
@@ -54,16 +46,16 @@
                 <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
                     <h3 class="text-lg font-bold mb-4">Daftar Pemain (<span id="playerCount">0</span>)</h3>
                     <div id="playerList" class="space-y-2 max-h-60 overflow-y-auto pr-2">
-                        <p class="text-slate-500 italic">Belum ada pemain terdaftar.</p>
-                    </div>
+                        </div>
                 </section>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
+                
                 <div class="flex justify-center">
-                    <div id="timerContainer" class="bg-slate-800 border-8 border-slate-700 rounded-full w-48 h-48 flex flex-col items-center justify-center shadow-2xl transition-all duration-300">
-                        <span class="text-xs font-bold text-slate-400">SHOT CLOCK</span>
-                        <div id="timerDisplay" class="text-7xl font-digital font-black text-white">30</div>
+                    <div id="timerContainer" class="bg-slate-800 border-8 border-slate-700 rounded-full w-44 h-44 flex flex-col items-center justify-center shadow-2xl transition-all duration-300">
+                        <span class="text-[10px] font-bold text-slate-400">SHOT CLOCK</span>
+                        <div id="timerDisplay" class="text-6xl font-digital font-black text-white">30</div>
                         <div class="flex space-x-2 mt-2">
                             <button onclick="startTimer()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-full text-[10px] font-bold">START</button>
                             <button onclick="extension()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded-full text-[10px] font-bold">EXTEND</button>
@@ -76,196 +68,219 @@
                     <div class="absolute top-0 left-0 w-full h-2 bg-yellow-600"></div>
                     <div class="flex justify-between items-center text-center">
                         <div class="flex-1">
-                            <h2 id="p1DisplayName" class="text-2xl font-bold mb-2 text-blue-400 font-digital">PLAYER 1</h2>
-                            <div id="score1" class="text-9xl font-black text-white mb-6">0</div>
+                            <h2 id="p1DisplayName" class="text-xl font-bold mb-2 text-blue-400 font-digital uppercase">PLAYER 1</h2>
+                            <div id="score1" class="text-8xl font-black text-white mb-6">0</div>
                             <button onclick="updateScore('score1', 1)" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-black text-xl shadow-lg">+ FRAME</button>
                         </div>
-                        <div class="px-8 text-4xl font-black text-slate-600 italic">VS</div>
+                        <div class="px-6 text-2xl font-black text-slate-600 italic uppercase">vs</div>
                         <div class="flex-1">
-                            <h2 id="p2DisplayName" class="text-2xl font-bold mb-2 text-red-400 font-digital">PLAYER 2</h2>
-                            <div id="score2" class="text-9xl font-black text-white mb-6">0</div>
+                            <h2 id="p2DisplayName" class="text-xl font-bold mb-2 text-red-400 font-digital uppercase">PLAYER 2</h2>
+                            <div id="score2" class="text-8xl font-black text-white mb-6">0</div>
                             <button onclick="updateScore('score2', 1)" class="w-full bg-red-600 hover:bg-red-500 py-4 rounded-xl font-black text-xl shadow-lg">+ FRAME</button>
                         </div>
                     </div>
-                    <div class="mt-8 text-center">
-                        <button onclick="resetMatchScore()" class="text-slate-500 hover:text-white underline text-sm uppercase tracking-tighter">Reset Match Skor</button>
+                    <button onclick="finishMatch()" class="mt-8 w-full bg-green-700 hover:bg-green-600 py-4 rounded-xl font-bold tracking-widest text-lg transition-transform hover:scale-[1.02]">
+                        SELESAIKAN & SIMPAN HASIL
+                    </button>
+                </section>
+
+                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl overflow-hidden">
+                    <h3 class="text-lg font-bold mb-4 text-yellow-500 flex items-center">
+                        <span class="w-2 h-6 bg-yellow-500 mr-2 rounded"></span> KLASEMEN LIGA
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
+                                <tr>
+                                    <th class="p-3">Pos</th>
+                                    <th class="p-3">Pemain</th>
+                                    <th class="p-3 text-center">Main</th>
+                                    <th class="p-3 text-center">M</th>
+                                    <th class="p-3 text-center">K</th>
+                                    <th class="p-3 text-center">+/-</th>
+                                    <th class="p-3 text-center bg-yellow-900/20 text-yellow-500">Poin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leagueTableBody" class="text-sm divide-y divide-slate-700">
+                                </tbody>
+                        </table>
                     </div>
                 </section>
 
                 <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                    <h3 class="text-lg font-bold mb-4 flex items-center">
-                        <span class="w-2 h-6 bg-yellow-500 mr-2 rounded"></span> Bracket Terakhir
-                    </h3>
-                    <div class="flex space-x-8 overflow-x-auto pb-4">
-                        <div class="bracket-card bg-slate-900 p-3 rounded w-48 border-l-4 border-yellow-600">
-                            <div class="flex justify-between border-b border-slate-700 mb-1"><span>Budi</span> <span class="text-yellow-500">7</span></div>
-                            <div class="flex justify-between opacity-50 text-sm italic"><span>Andi</span> <span>4</span></div>
-                        </div>
-                        <div class="bracket-card bg-slate-900 p-3 rounded w-48 border-l-4 border-blue-600">
-                            <div class="flex justify-between animate-pulse"><span>Dedi</span> <span class="text-blue-400">2</span></div>
-                            <div class="flex justify-between"><span>Candra</span> <span class="text-blue-400">0</span></div>
-                        </div>
+                    <h3 class="text-lg font-bold mb-4 text-slate-400 italic">LOG RIWAYAT PERTANDINGAN</h3>
+                    <div id="matchHistory" class="space-y-3 max-h-60 overflow-y-auto pr-2 text-sm text-slate-500">
+                        Belum ada data pertandingan.
                     </div>
                 </section>
+
             </div>
         </div>
     </div>
-    <section class="mt-8 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-    <h3 class="text-xl font-bold mb-4 text-yellow-500 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-        Klasemen Liga
-    </h3>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-slate-900 text-yellow-500 uppercase text-xs">
-                    <th class="p-3 border-b border-slate-700">Pos</th>
-                    <th class="p-3 border-b border-slate-700">Nama Pemain</th>
-                    <th class="p-3 border-b border-slate-700 text-center">Main</th>
-                    <th class="p-3 border-b border-slate-700 text-center">M</th>
-                    <th class="p-3 border-b border-slate-700 text-center">K</th>
-                    <th class="p-3 border-b border-slate-700 text-center">+/-</th>
-                    <th class="p-3 border-b border-slate-700 text-center bg-yellow-900/20">Poin</th>
-                </tr>
-            </thead>
-            <tbody id="leagueTableBody" class="text-sm">
-                </tbody>
-        </table>
-    </div>
-</section>
 
     <script>
-        // --- DATA & DATABASE ---
+        // DATA STATE
         let players = [];
+        let matchLogs = [];
         let timeLeft = 30;
         let timerId = null;
 
+        // LOAD DATA AWAL
         window.onload = function() {
-            const savedPlayers = localStorage.getItem('billiardPlayers');
-            if (savedPlayers) {
-                players = JSON.parse(savedPlayers);
-                updatePlayerList();
-            }
-            const savedScores = localStorage.getItem('lastScores');
-            if (savedScores) {
-                const scores = JSON.parse(savedScores);
-                document.getElementById('score1').innerText = scores.s1;
-                document.getElementById('score2').innerText = scores.s2;
-                document.getElementById('p1DisplayName').innerText = scores.n1;
-                document.getElementById('p2DisplayName').innerText = scores.n2;
-            }
+            const savedPlayers = localStorage.getItem('bill_players');
+            const savedLogs = localStorage.getItem('bill_logs');
+            if (savedPlayers) players = JSON.parse(savedPlayers);
+            if (savedLogs) matchLogs = JSON.parse(savedLogs);
+            
+            updatePlayerList();
+            updateLeagueTable();
+            updateMatchHistoryUI();
         };
 
-        function saveToDatabase() {
-            localStorage.setItem('billiardPlayers', JSON.stringify(players));
-            const currentScores = {
-                s1: document.getElementById('score1').innerText,
-                s2: document.getElementById('score2').innerText,
-                n1: document.getElementById('p1DisplayName').innerText,
-                n2: document.getElementById('p2DisplayName').innerText
-            };
-            localStorage.setItem('lastScores', JSON.stringify(currentScores));
+        function saveAll() {
+            localStorage.setItem('bill_players', JSON.stringify(players));
+            localStorage.setItem('bill_logs', JSON.stringify(matchLogs));
         }
 
-        // --- PEMAIN ---
+        // FUNGSI PEMAIN
         function registerPlayer() {
             const name = document.getElementById('playerName');
             const grade = document.getElementById('playerGrade');
-            if (!name.value) return alert("Masukkan nama!");
+            if (!name.value) return alert("Isi nama pemain!");
 
-            players.push({ id: Date.now(), name: name.value, grade: grade.value });
+            players.push({
+                id: Date.now(),
+                name: name.value,
+                grade: grade.value,
+                played: 0, wins: 0, losses: 0, margin: 0, points: 0
+            });
+
             name.value = "";
             updatePlayerList();
-            saveToDatabase();
+            updateLeagueTable();
+            saveAll();
         }
 
         function updatePlayerList() {
             const list = document.getElementById('playerList');
             document.getElementById('playerCount').innerText = players.length;
-            list.innerHTML = players.map((p, i) => `
+            list.innerHTML = players.map(p => `
                 <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <span class="text-sm">${i+1}. <strong>${p.name}</strong> <small class="text-blue-400">${p.grade}</small></span>
+                    <span class="font-bold">${p.name} <small class="text-blue-500">${p.grade}</small></span>
                     <div class="flex space-x-1">
-                        <button onclick="setPlayerToBoard('${p.name}', '${p.grade}', 1)" class="bg-blue-900 text-[10px] px-2 py-1 rounded">P1</button>
-                        <button onclick="setPlayerToBoard('${p.name}', '${p.grade}', 2)" class="bg-red-900 text-[10px] px-2 py-1 rounded">P2</button>
+                        <button onclick="setPlayer('${p.name}', '${p.grade}', 1)" class="bg-blue-600 text-[10px] px-2 py-1 rounded font-bold">P1</button>
+                        <button onclick="setPlayer('${p.name}', '${p.grade}', 2)" class="bg-red-600 text-[10px] px-2 py-1 rounded font-bold">P2</button>
                     </div>
                 </div>
-            `).join('');
+            `).join('') || '<p class="text-slate-500 italic">Belum ada pemain.</p>';
         }
 
-        function setPlayerToBoard(name, grade, slot) {
+        function setPlayer(name, grade, slot) {
             document.getElementById(`p${slot}DisplayName`).innerText = `${name} (${grade})`;
-            saveToDatabase();
         }
 
-        // --- SKOR ---
+        // FUNGSI MATCH & SCORE
         function updateScore(id, val) {
             const el = document.getElementById(id);
             el.innerText = parseInt(el.innerText) + val;
-            saveToDatabase();
             resetTimer();
         }
 
-        function resetMatchScore() {
-            if(confirm("Reset skor pertandingan ini?")) {
-                document.getElementById('score1').innerText = 0;
-                document.getElementById('score2').innerText = 0;
-                saveToDatabase();
-            }
+        function finishMatch() {
+            const s1 = parseInt(document.getElementById('score1').innerText);
+            const s2 = parseInt(document.getElementById('score2').innerText);
+            const n1Raw = document.getElementById('p1DisplayName').innerText;
+            const n2Raw = document.getElementById('p2DisplayName').innerText;
+
+            if (n1Raw === "PLAYER 1" || n2Raw === "PLAYER 2") return alert("Pilih pemain dulu!");
+            if (s1 === 0 && s2 === 0) return alert("Skor masih kosong!");
+
+            const name1 = n1Raw.split(' (')[0];
+            const name2 = n2Raw.split(' (')[0];
+
+            // Update Stats Pemain
+            let p1 = players.find(p => p.name === name1);
+            let p2 = players.find(p => p.name === name2);
+
+            p1.played++; p2.played++;
+            p1.margin += (s1 - s2);
+            p2.margin += (s2 - s1);
+
+            if (s1 > s2) { p1.wins++; p1.points += 3; p2.losses++; }
+            else if (s2 > s1) { p2.wins++; p2.points += 3; p1.losses++; }
+
+            // Tambah Log
+            matchLogs.unshift({
+                time: new Date().toLocaleTimeString(),
+                p1: name1, p2: name2, s1, s2
+            });
+
+            // Reset UI Papan Skor
+            document.getElementById('score1').innerText = 0;
+            document.getElementById('score2').innerText = 0;
+
+            updateLeagueTable();
+            updateMatchHistoryUI();
+            saveAll();
+            alert("Pertandingan Selesai!");
         }
 
-        // --- SHOT CLOCK ---
+        function updateLeagueTable() {
+            const sorted = [...players].sort((a,b) => b.points - a.points || b.margin - a.margin);
+            document.getElementById('leagueTableBody').innerHTML = sorted.map((p, i) => `
+                <tr class="hover:bg-slate-700/30">
+                    <td class="p-3 font-digital text-yellow-600">${i+1}</td>
+                    <td class="p-3 font-bold">${p.name} <small class="text-slate-500">${p.grade}</small></td>
+                    <td class="p-3 text-center">${p.played}</td>
+                    <td class="p-3 text-center text-green-400">${p.wins}</td>
+                    <td class="p-3 text-center text-red-400">${p.losses}</td>
+                    <td class="p-3 text-center">${p.margin > 0 ? '+' : ''}${p.margin}</td>
+                    <td class="p-3 text-center font-black bg-yellow-900/10 text-yellow-500">${p.points}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateMatchHistoryUI() {
+            document.getElementById('matchHistory').innerHTML = matchLogs.map(l => `
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between">
+                    <span>${l.p1} <strong>${l.s1}-${l.s2}</strong> ${l.p2}</span>
+                    <span class="text-[10px] uppercase text-slate-600">${l.time}</span>
+                </div>
+            `).join('') || 'Belum ada data.';
+        }
+
+        // SHOT CLOCK LOGIC
         function startTimer() {
             clearInterval(timerId);
             timeLeft = 30;
             updateTimerUI();
             timerId = setInterval(() => {
-                timeLeft--;
-                updateTimerUI();
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    alert("WAKTU HABIS! FOUL!");
-                }
+                timeLeft--; updateTimerUI();
+                if (timeLeft <= 0) { clearInterval(timerId); alert("TIME OUT / FOUL!"); }
             }, 1000);
         }
-
-        function resetTimer() {
-            clearInterval(timerId);
-            timeLeft = 30;
-            updateTimerUI();
-        }
-
-        function extension() {
-            timeLeft += 30;
-            updateTimerUI();
-        }
-
+        function resetTimer() { clearInterval(timerId); timeLeft = 30; updateTimerUI(); }
+        function extension() { timeLeft += 30; updateTimerUI(); }
         function updateTimerUI() {
-            const display = document.getElementById('timerDisplay');
-            const container = document.getElementById('timerContainer');
-            display.innerText = timeLeft;
-            
-            container.style.borderColor = timeLeft > 15 ? "#16a34a" : timeLeft > 5 ? "#ca8a04" : "#dc2626";
-            if(timeLeft <= 5) display.classList.add("animate-pulse");
-            else display.classList.remove("animate-pulse");
+            const d = document.getElementById('timerDisplay');
+            const c = document.getElementById('timerContainer');
+            d.innerText = timeLeft;
+            c.style.borderColor = timeLeft > 15 ? "#16a34a" : timeLeft > 5 ? "#ca8a04" : "#dc2626";
         }
 
-        // --- EKSPOR & CLEAR ---
+        // EKSPOR & RESET
         function exportToExcel() {
-            let csv = "Nama Pemain,Grade\n";
-            players.forEach(p => csv += `${p.name},${p.grade}\n`);
+            let csv = "Nama,Grade,Main,Menang,Kalah,Margin,Poin\n";
+            players.forEach(p => csv += `${p.name},${p.grade},${p.played},${p.wins},${p.losses},${p.margin},${p.points}\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'Data_Turnamen.csv');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Klasemen_Liga_Billiard.csv';
             a.click();
         }
 
         function clearDatabase() {
-            if(confirm("HAPUS SEMUA DATA? Tindakan ini tidak bisa dibatalkan.")) {
+            if (confirm("Hapus semua data pemain dan klasemen?")) {
                 localStorage.clear();
                 location.reload();
             }
