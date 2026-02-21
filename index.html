@@ -3,148 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Tournament Manager</title>
+    <title>Billiard Tournament Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .bracket-connector {
-            position: relative;
-        }
-        .bracket-connector::after {
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        .font-digital { font-family: 'Orbitron', sans-serif; }
+        .bracket-card { position: relative; }
+        .bracket-card::after {
             content: '';
             position: absolute;
-            right: -20px;
+            right: -24px;
             top: 50%;
-            width: 20px;
+            width: 24px;
             height: 2px;
             background: #4b5563;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans">
+<body class="bg-slate-900 text-slate-100 min-h-screen">
 
-    <nav class="bg-black p-4 border-b border-yellow-500">
+    <nav class="bg-black border-b-2 border-yellow-600 p-4 sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-yellow-500">🎱 BilliardLeague</h1>
-            <div class="space-x-4">
-                <a href="#" class="hover:text-yellow-400">Klasemen</a>
-                <a href="#" class="hover:text-yellow-400">Bagan</a>
-                <a href="#" class="bg-yellow-600 px-4 py-2 rounded font-bold">Admin Panel</a>
+            <h1 class="text-2xl font-black text-yellow-500 tracking-tighter">🎱 BILLIARD<span class="text-white">PRO</span></h1>
+            <div class="flex space-x-2">
+                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">Export Excel</button>
+                <button onclick="clearDatabase()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-bold">Reset All</button>
             </div>
         </div>
     </nav>
 
-    <section class="mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-        <h3 class="text-lg font-bold mb-4 text-yellow-500">Daftar Pemain Baru</h3>
-        <div class="space-y-4">
-            <input type="text" id="playerName" placeholder="Nama Pemain" class="w-full p-2 bg-gray-900 border border-gray-600 rounded">
-            <select id="playerGrade" class="w-full p-2 bg-gray-900 border border-gray-600 rounded">
-                <option value="G4">Grade 4</option>
-                <option value="G5">Grade 5</option>
-                <option value="G6">Grade 6</option>
-                <option value="G7">Grade 7</option>
-            </select>
-            <button onclick="registerPlayer()" class="w-full bg-yellow-600 py-2 rounded font-bold">Daftarkan Pemain</button>
-        </div>
-    </div>
-
-    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-        <h3 class="text-lg font-bold mb-4">Waiting List (Pendaftar)</h3>
-        <div id="playerList" class="max-h-40 overflow-y-auto">
-            <p class="text-gray-500 italic">Belum ada pemain...</p>
-        </div>
-    </div>
-</section>
-
-<script src="script.js"></script>
-
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-4 lg:p-8">
         
-        <section class="mb-12 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-2xl">
-            <h2 class="text-xl font-semibold mb-6 text-center text-gray-400">LIVE MATCH - TABLE 1 (RACE TO 7)</h2>
-            <div class="flex justify-around items-center">
-                <div class="text-center">
-                    <h3 class="text-2xl font-bold mb-2">Budi <span class="text-sm bg-blue-600 px-2 rounded">G5</span></h3>
-                    <div id="score1" class="text-8xl font-black text-yellow-500 mb-4">0</div>
-                    <button onclick="updateScore('score1', 1)" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-bold transition">+ SCORE</button>
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="space-y-6">
+                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                    <h3 class="text-lg font-bold mb-4 text-yellow-500">Pendaftaran Pemain</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="playerName" placeholder="Nama Pemain" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
+                        <select id="playerGrade" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg">
+                            <option value="G4">Grade 4</option>
+                            <option value="G5">Grade 5</option>
+                            <option value="G6">Grade 6</option>
+                            <option value="G7">Grade 7</option>
+                        </select>
+                        <button onclick="registerPlayer()" class="w-full bg-yellow-600 hover:bg-yellow-500 py-3 rounded-lg font-bold transition">Tambahkan Pemain</button>
+                    </div>
+                </section>
 
-                <div class="text-4xl font-bold text-gray-600 italic">VS</div>
-
-                <div class="text-center">
-                    <h3 class="text-2xl font-bold mb-2">Andi <span class="text-sm bg-blue-600 px-2 rounded">G4</span></h3>
-                    <div id="score2" class="text-8xl font-black text-yellow-500 mb-4">0</div>
-                    <button onclick="updateScore('score2', 1)" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-bold transition">+ SCORE</button>
-                </div>
-            </div>
-            <div class="text-center mt-8">
-                <button onclick="resetScore()" class="text-sm text-gray-500 underline uppercase tracking-widest">Reset Match</button>
-            </div>
-        </section>
-
-        <h2 class="text-2xl font-bold mb-6 border-l-4 border-yellow-500 pl-3">Turnamen Bracket (Semi-Final)</h2>
-        <div class="flex items-center space-x-12 overflow-x-auto pb-10">
-            <div class="space-y-8">
-                <div class="bg-gray-800 p-3 rounded border border-gray-600 w-48 bracket-connector">
-                    <div class="flex justify-between border-b border-gray-700 pb-1"><span>Budi</span> <span>7</span></div>
-                    <div class="flex justify-between pt-1 text-gray-500 italic"><span>Andi</span> <span>4</span></div>
-                </div>
-                <div class="bg-gray-800 p-3 rounded border border-gray-600 w-48 bracket-connector">
-                    <div class="flex justify-between border-b border-gray-700 pb-1"><span>Candra</span> <span>2</span></div>
-                    <div class="flex justify-between pt-1 font-bold text-yellow-500 italic"><span>Dedi (LIVE)</span> <span>5</span></div>
-                </div>
+                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                    <h3 class="text-lg font-bold mb-4">Daftar Pemain (<span id="playerCount">0</span>)</h3>
+                    <div id="playerList" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        <p class="text-slate-500 italic">Belum ada pemain terdaftar.</p>
+                    </div>
+                </section>
             </div>
 
-            <div>
-                <div class="bg-yellow-900/30 p-4 rounded border-2 border-yellow-500 w-56">
-                    <div class="text-xs uppercase text-yellow-500 font-bold mb-2">Grand Final</div>
-                    <div class="flex justify-between border-b border-yellow-800 pb-1 font-bold"><span>Budi</span> <span>-</span></div>
-                    <div class="flex justify-between pt-1 font-bold text-gray-500"><span>TBD</span> <span>-</span></div>
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex justify-center">
+                    <div id="timerContainer" class="bg-slate-800 border-8 border-slate-700 rounded-full w-48 h-48 flex flex-col items-center justify-center shadow-2xl transition-all duration-300">
+                        <span class="text-xs font-bold text-slate-400">SHOT CLOCK</span>
+                        <div id="timerDisplay" class="text-7xl font-digital font-black text-white">30</div>
+                        <div class="flex space-x-2 mt-2">
+                            <button onclick="startTimer()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-full text-[10px] font-bold">START</button>
+                            <button onclick="extension()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded-full text-[10px] font-bold">EXTEND</button>
+                            <button onclick="resetTimer()" class="bg-slate-600 hover:bg-slate-500 px-3 py-1 rounded-full text-[10px] font-bold">RESET</button>
+                        </div>
+                    </div>
                 </div>
+
+                <section class="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-yellow-600"></div>
+                    <div class="flex justify-between items-center text-center">
+                        <div class="flex-1">
+                            <h2 id="p1DisplayName" class="text-2xl font-bold mb-2 text-blue-400 font-digital">PLAYER 1</h2>
+                            <div id="score1" class="text-9xl font-black text-white mb-6">0</div>
+                            <button onclick="updateScore('score1', 1)" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-black text-xl shadow-lg">+ FRAME</button>
+                        </div>
+                        <div class="px-8 text-4xl font-black text-slate-600 italic">VS</div>
+                        <div class="flex-1">
+                            <h2 id="p2DisplayName" class="text-2xl font-bold mb-2 text-red-400 font-digital">PLAYER 2</h2>
+                            <div id="score2" class="text-9xl font-black text-white mb-6">0</div>
+                            <button onclick="updateScore('score2', 1)" class="w-full bg-red-600 hover:bg-red-500 py-4 rounded-xl font-black text-xl shadow-lg">+ FRAME</button>
+                        </div>
+                    </div>
+                    <div class="mt-8 text-center">
+                        <button onclick="resetMatchScore()" class="text-slate-500 hover:text-white underline text-sm uppercase tracking-tighter">Reset Match Skor</button>
+                    </div>
+                </section>
+
+                <section class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <span class="w-2 h-6 bg-yellow-500 mr-2 rounded"></span> Bracket Terakhir
+                    </h3>
+                    <div class="flex space-x-8 overflow-x-auto pb-4">
+                        <div class="bracket-card bg-slate-900 p-3 rounded w-48 border-l-4 border-yellow-600">
+                            <div class="flex justify-between border-b border-slate-700 mb-1"><span>Budi</span> <span class="text-yellow-500">7</span></div>
+                            <div class="flex justify-between opacity-50 text-sm italic"><span>Andi</span> <span>4</span></div>
+                        </div>
+                        <div class="bracket-card bg-slate-900 p-3 rounded w-48 border-l-4 border-blue-600">
+                            <div class="flex justify-between animate-pulse"><span>Dedi</span> <span class="text-blue-400">2</span></div>
+                            <div class="flex justify-between"><span>Candra</span> <span class="text-blue-400">0</span></div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
-
     </div>
 
-    <div class="mt-10 text-center">
-    <button onclick="clearDatabase()" class="text-red-500 text-xs border border-red-500 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition">
-        HAPUS SEMUA DATA TURNAMEN
-    </button>
-</div>
-
-    <div class="mt-10 text-center">
-    <button onclick="clearDatabase()" class="text-red-500 text-xs border border-red-500 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition">
-        HAPUS SEMUA DATA TURNAMEN
-    </button>
-</div>
-
-<script>
-function clearDatabase() {
-    if(confirm("Apakah Anda yakin ingin menghapus semua data pemain dan skor?")) {
-        localStorage.clear();
-        location.reload();
-    }
-}
-</script>
     <script>
-        // Logika sederhana untuk update skor
-        function updateScore(id, val) {
-            const scoreElement = document.getElementById(id);
-            let currentScore = parseInt(scoreElement.innerText);
-            
-            // Misal Race to 7
-            if (currentScore < 7) {
-                scoreElement.innerText = currentScore + val;
-            }
+        // --- DATA & DATABASE ---
+        let players = [];
+        let timeLeft = 30;
+        let timerId = null;
 
-            if (parseInt(scoreElement.innerText) === 7) {
-                alert("Game Over! Kami memiliki pemenang!");
+        window.onload = function() {
+            const savedPlayers = localStorage.getItem('billiardPlayers');
+            if (savedPlayers) {
+                players = JSON.parse(savedPlayers);
+                updatePlayerList();
+            }
+            const savedScores = localStorage.getItem('lastScores');
+            if (savedScores) {
+                const scores = JSON.parse(savedScores);
+                document.getElementById('score1').innerText = scores.s1;
+                document.getElementById('score2').innerText = scores.s2;
+                document.getElementById('p1DisplayName').innerText = scores.n1;
+                document.getElementById('p2DisplayName').innerText = scores.n2;
+            }
+        };
+
+        function saveToDatabase() {
+            localStorage.setItem('billiardPlayers', JSON.stringify(players));
+            const currentScores = {
+                s1: document.getElementById('score1').innerText,
+                s2: document.getElementById('score2').innerText,
+                n1: document.getElementById('p1DisplayName').innerText,
+                n2: document.getElementById('p2DisplayName').innerText
+            };
+            localStorage.setItem('lastScores', JSON.stringify(currentScores));
+        }
+
+        // --- PEMAIN ---
+        function registerPlayer() {
+            const name = document.getElementById('playerName');
+            const grade = document.getElementById('playerGrade');
+            if (!name.value) return alert("Masukkan nama!");
+
+            players.push({ id: Date.now(), name: name.value, grade: grade.value });
+            name.value = "";
+            updatePlayerList();
+            saveToDatabase();
+        }
+
+        function updatePlayerList() {
+            const list = document.getElementById('playerList');
+            document.getElementById('playerCount').innerText = players.length;
+            list.innerHTML = players.map((p, i) => `
+                <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <span class="text-sm">${i+1}. <strong>${p.name}</strong> <small class="text-blue-400">${p.grade}</small></span>
+                    <div class="flex space-x-1">
+                        <button onclick="setPlayerToBoard('${p.name}', '${p.grade}', 1)" class="bg-blue-900 text-[10px] px-2 py-1 rounded">P1</button>
+                        <button onclick="setPlayerToBoard('${p.name}', '${p.grade}', 2)" class="bg-red-900 text-[10px] px-2 py-1 rounded">P2</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setPlayerToBoard(name, grade, slot) {
+            document.getElementById(`p${slot}DisplayName`).innerText = `${name} (${grade})`;
+            saveToDatabase();
+        }
+
+        // --- SKOR ---
+        function updateScore(id, val) {
+            const el = document.getElementById(id);
+            el.innerText = parseInt(el.innerText) + val;
+            saveToDatabase();
+            resetTimer();
+        }
+
+        function resetMatchScore() {
+            if(confirm("Reset skor pertandingan ini?")) {
+                document.getElementById('score1').innerText = 0;
+                document.getElementById('score2').innerText = 0;
+                saveToDatabase();
             }
         }
 
-        function resetScore() {
-            document.getElementById('score1').innerText = 0;
-            document.getElementById('score2').innerText = 0;
+        // --- SHOT CLOCK ---
+        function startTimer() {
+            clearInterval(timerId);
+            timeLeft = 30;
+            updateTimerUI();
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    alert("WAKTU HABIS! FOUL!");
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            timeLeft = 30;
+            updateTimerUI();
+        }
+
+        function extension() {
+            timeLeft += 30;
+            updateTimerUI();
+        }
+
+        function updateTimerUI() {
+            const display = document.getElementById('timerDisplay');
+            const container = document.getElementById('timerContainer');
+            display.innerText = timeLeft;
+            
+            container.style.borderColor = timeLeft > 15 ? "#16a34a" : timeLeft > 5 ? "#ca8a04" : "#dc2626";
+            if(timeLeft <= 5) display.classList.add("animate-pulse");
+            else display.classList.remove("animate-pulse");
+        }
+
+        // --- EKSPOR & CLEAR ---
+        function exportToExcel() {
+            let csv = "Nama Pemain,Grade\n";
+            players.forEach(p => csv += `${p.name},${p.grade}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Data_Turnamen.csv');
+            a.click();
+        }
+
+        function clearDatabase() {
+            if(confirm("HAPUS SEMUA DATA? Tindakan ini tidak bisa dibatalkan.")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
