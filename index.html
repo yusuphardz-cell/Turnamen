@@ -110,6 +110,31 @@
             </div>
         </div>
     </div>
+    <section class="mt-8 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+    <h3 class="text-xl font-bold mb-4 text-yellow-500 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        Klasemen Liga
+    </h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-900 text-yellow-500 uppercase text-xs">
+                    <th class="p-3 border-b border-slate-700">Pos</th>
+                    <th class="p-3 border-b border-slate-700">Nama Pemain</th>
+                    <th class="p-3 border-b border-slate-700 text-center">Main</th>
+                    <th class="p-3 border-b border-slate-700 text-center">M</th>
+                    <th class="p-3 border-b border-slate-700 text-center">K</th>
+                    <th class="p-3 border-b border-slate-700 text-center">+/-</th>
+                    <th class="p-3 border-b border-slate-700 text-center bg-yellow-900/20">Poin</th>
+                </tr>
+            </thead>
+            <tbody id="leagueTableBody" class="text-sm">
+                </tbody>
+        </table>
+    </div>
+</section>
 
     <script>
         // --- DATA & DATABASE ---
