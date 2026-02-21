@@ -195,4 +195,79 @@ function exportToExcel() {
     link.click();
     document.body.removeChild(link);
 }
+// Tambahkan stats ke dalam objek pemain saat registrasi
+function registerPlayer() {
+    const name = document.getElementById('playerName');
+    const grade = document.getElementById('playerGrade');
+    if (!name.value) return alert("Masukkan nama!");
+
+    players.push({ 
+        id: Date.now(), 
+        name: name.value, 
+        grade: grade.value,
+        played: 0,
+        wins: 0,
+        losses: 0,
+        margin: 0,
+        points: 0
+    });
+    
+    name.value = "";
+    updatePlayerList();
+    updateLeagueTable(); // Update tabel klasemen
+    saveToDatabase();
+}
+
+// Fungsi untuk mencatat hasil pertandingan ke klasemen
+function finishMatch(winnerSlot) {
+    const s1 = parseInt(document.getElementById('score1').innerText);
+    const s2 = parseInt(document.getElementById('score2').innerText);
+    const n1 = document.getElementById('p1DisplayName').innerText;
+    const n2 = document.getElementById('p2DisplayName').innerText;
+
+    // Logika pencarian pemain di array berdasarkan nama
+    // (Dalam aplikasi nyata, sebaiknya gunakan ID)
+    let player1 = players.find(p => n1.includes(p.name));
+    let player2 = players.find(p => n2.includes(p.name));
+
+    if (!player1 || !player2) return alert("Pilih pemain dari daftar terlebih dahulu!");
+
+    if (winnerSlot === 1) {
+        player1.wins++; player1.points += 3;
+        player2.losses++;
+        player1.margin += (s1 - s2);
+        player2.margin += (s2 - s1);
+    } else {
+        player2.wins++; player2.points += 3;
+        player1.losses++;
+        player2.margin += (s2 - s1);
+        player1.margin += (s1 - s2);
+    }
+    
+    player1.played++;
+    player2.played++;
+
+    updateLeagueTable();
+    saveToDatabase();
+    alert("Hasil pertandingan telah disimpan ke klasemen!");
+}
+
+function updateLeagueTable() {
+    const tbody = document.getElementById('leagueTableBody');
+    
+    // Urutkan berdasarkan Poin tertinggi, lalu Margin tertinggi
+    const sortedPlayers = [...players].sort((a, b) => b.points - a.points || b.margin - a.margin);
+    
+    tbody.innerHTML = sortedPlayers.map((p, i) => `
+        <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
+            <td class="p-3">${i + 1}</td>
+            <td class="p-3 font-bold">${p.name} <span class="text-xs text-blue-400">(${p.grade})</span></td>
+            <td class="p-3 text-center">${p.played}</td>
+            <td class="p-3 text-center text-green-400">${p.wins}</td>
+            <td class="p-3 text-center text-red-400">${p.losses}</td>
+            <td class="p-3 text-center font-mono">${p.margin > 0 ? '+' : ''}${p.margin}</td>
+            <td class="p-3 text-center font-black bg-yellow-900/10 text-yellow-500">${p.points}</td>
+        </tr>
+    `).join('');
+}
 
