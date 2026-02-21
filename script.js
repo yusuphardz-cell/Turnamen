@@ -1,73 +1,162 @@
-// Database sederhana di memori (Temporary)
-let players = [];
+/**
+ * BILLIARD PRO LEAGUE SYSTEM - CORE SCRIPT
+ * Mengelola Logika Turnamen, Klasemen, dan Database Lokal
+ */
 
-// Fungsi untuk menambah pemain
+// --- 1. INISIALISASI DATA ---
+let players = [];
+let matchLogs = [];
+let timeLeft = 30;
+let timerId = null;
+
+// Memuat data dari LocalStorage saat halaman pertama kali dibuka
+window.onload = function() {
+    const savedPlayers = localStorage.getItem('bill_players');
+    const savedLogs = localStorage.getItem('bill_logs');
+    
+    if (savedPlayers) {
+        players = JSON.parse(savedPlayers);
+    }
+    if (savedLogs) {
+        matchLogs = JSON.parse(savedLogs);
+    }
+    
+    renderAll();
+};
+
+// --- 2. FUNGSI DATABASE (LOCAL STORAGE) ---
+function saveAll() {
+    localStorage.setItem('bill_players', JSON.stringify(players));
+    localStorage.setItem('bill_logs', JSON.stringify(matchLogs));
+}
+
+function clearDatabase() {
+    if (confirm("HAPUS SEMUA DATA? Tindakan ini akan menghapus klasemen dan riwayat permanen.")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+// --- 3. MANAJEMEN PEMAIN ---
 function registerPlayer() {
     const nameInput = document.getElementById('playerName');
     const gradeInput = document.getElementById('playerGrade');
     
-    if (nameInput.value === "") {
-        alert("Nama pemain tidak boleh kosong!");
+    const name = nameInput.value.trim();
+    const grade = gradeInput.value;
+
+    if (!name) {
+        alert("Nama pemain harus diisi!");
+        return;
+    }
+
+    // Cek jika nama sudah ada
+    if (players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+        alert("Nama pemain sudah terdaftar!");
         return;
     }
 
     const newPlayer = {
         id: Date.now(),
-        name: nameInput.value,
-        grade: gradeInput.value
+        name: name,
+        grade: grade,
+        played: 0,
+        wins: 0,
+        losses: 0,
+        margin: 0,
+        points: 0
     };
 
     players.push(newPlayer);
-    updatePlayerList();
-    
-    // Reset form
     nameInput.value = "";
+    
+    renderAll();
+    saveAll();
 }
 
-// Fungsi memperbarui tampilan daftar pendaftar
-function updatePlayerList() {
-    const listElement = document.getElementById('playerList');
-    listElement.innerHTML = "";
-
-    players.forEach((p, index) => {
-        listElement.innerHTML += `
-            <div class="flex justify-between items-center bg-gray-700 p-2 rounded mb-2">
-                <span>${index + 1}. <strong>${p.name}</strong> (${p.grade})</span>
-                <button onclick="setMatch(${p.id})" class="text-xs bg-blue-500 px-2 py-1 rounded">Set ke Meja 1</button>
-            </div>
-        `;
-    });
+function setPlayer(name, grade, slot) {
+    const displayName = `${name} (${grade})`;
+    document.getElementById(`p${slot}DisplayName`).innerText = displayName;
 }
 
-// Fungsi mengirim pemain ke Papan Skor (Live Match)
-function setMatch(id) {
-    const selectedPlayer = players.find(p => p.id === id);
-    // Logika sederhana: isi Slot 1 jika kosong, jika tidak isi Slot 2
-    const p1Name = document.getElementById('p1DisplayName');
-    const p2Name = document.getElementById('p2DisplayName');
+// --- 4. SCOREBOARD & LOGIKA LIGA ---
+function updateScore(id, val) {
+    const el = document.getElementById(id);
+    let currentScore = parseInt(el.innerText);
+    el.innerText = currentScore + val;
+    resetTimer(); // Reset shot clock setiap kali skor bertambah
+}
 
-    if (p1Name.innerText === "Player 1") {
-        p1Name.innerText = `${selectedPlayer.name} (${selectedPlayer.grade})`;
-    } else {
-        p2Name.innerText = `${selectedPlayer.name} (${selectedPlayer.grade})`;
+function finishMatch() {
+    const s1 = parseInt(document.getElementById('score1').innerText);
+    const s2 = parseInt(document.getElementById('score2').innerText);
+    const n1Raw = document.getElementById('p1DisplayName').innerText;
+    const n2Raw = document.getElementById('p2DisplayName').innerText;
+
+    if (n1Raw === "PLAYER 1" || n2Raw === "PLAYER 2") {
+        alert("Silakan pilih pemain dari daftar (P1/P2) terlebih dahulu!");
+        return;
     }
-}
-let timeLeft = 30;
-let timerId = null;
 
+    if (!confirm(`Selesaikan pertandingan: ${n1Raw} vs ${n2Raw}?`)) return;
+
+    // Ambil nama murni tanpa grade
+    const name1 = n1Raw.split(' (')[0].trim();
+    const name2 = n2Raw.split(' (')[0].trim();
+
+    const p1 = players.find(p => p.name === name1);
+    const p2 = players.find(p => p.name === name2);
+
+    if (!p1 || !p2) {
+        alert("Kesalahan: Data pemain tidak ditemukan!");
+        return;
+    }
+
+    // Update Statistik
+    p1.played++; p2.played++;
+    p1.margin += (s1 - s2);
+    p2.margin += (s2 - s1);
+
+    if (s1 > s2) {
+        p1.wins++; p1.points += 3; p2.losses++;
+    } else if (s2 > s1) {
+        p2.wins++; p2.points += 3; p1.losses++;
+    } else {
+        p1.points += 1; p2.points += 1; // Jika draw
+    }
+
+    // Simpan ke Log
+    matchLogs.unshift({
+        id: Date.now(),
+        time: new Date().toLocaleTimeString(),
+        p1: name1,
+        p2: name2,
+        s1: s1,
+        s2: s2,
+        winner: s1 > s2 ? name1 : (s2 > s1 ? name2 : "Draw")
+    });
+
+    // Reset Papan Skor UI
+    document.getElementById('score1').innerText = "0";
+    document.getElementById('score2').innerText = "0";
+    document.getElementById('p1DisplayName').innerText = "PLAYER 1";
+    document.getElementById('p2DisplayName').innerText = "PLAYER 2";
+
+    renderAll();
+    saveAll();
+    alert("Pertandingan berhasil disimpan ke klasemen!");
+}
+
+// --- 5. SHOT CLOCK ---
 function startTimer() {
-    // Stop timer jika sedang berjalan sebelum mulai baru
     clearInterval(timerId);
     timeLeft = 30;
     updateTimerUI();
-
     timerId = setInterval(() => {
         timeLeft--;
         updateTimerUI();
-
         if (timeLeft <= 0) {
             clearInterval(timerId);
-            playAlertSound(); // Opsional: Bunyi buzzer
             alert("WAKTU HABIS! FOUL!");
         }
     }, 1000);
@@ -79,266 +168,105 @@ function resetTimer() {
     updateTimerUI();
 }
 
+function extension() {
+    timeLeft += 30;
+    updateTimerUI();
+}
+
 function updateTimerUI() {
     const display = document.getElementById('timerDisplay');
     const container = document.getElementById('timerContainer');
     display.innerText = timeLeft;
-
-    // Perubahan Warna Indikator
+    
+    // Perubahan Warna
     if (timeLeft > 15) {
         container.style.borderColor = "#16a34a"; // Hijau
-    } else if (timeLeft <= 15 && timeLeft > 5) {
+    } else if (timeLeft > 5) {
         container.style.borderColor = "#ca8a04"; // Kuning
     } else {
         container.style.borderColor = "#dc2626"; // Merah
-        // Efek kedip saat kritis
-        display.classList.add("animate-pulse");
-    }
-
-    if (timeLeft > 5) display.classList.remove("animate-pulse");
-}
-
-function playAlertSound() {
-    // Anda bisa menambahkan file audio buzzer di sini jika ingin
-    console.log("Buzzer Sound!");
-}
-// 1. Fungsi untuk Memuat Data Saat Aplikasi Dibuka
-window.onload = function() {
-    const savedPlayers = localStorage.getItem('billiardPlayers');
-    if (savedPlayers) {
-        players = JSON.parse(savedPlayers);
-        updatePlayerList();
-    }
-    
-    // Memuat skor terakhir jika ada
-    const savedScores = localStorage.getItem('lastScores');
-    if (savedScores) {
-        const scores = JSON.parse(savedScores);
-        document.getElementById('score1').innerText = scores.s1;
-        document.getElementById('score2').innerText = scores.s2;
-    }
-};
-
-// 2. Fungsi Simpan Data (Dipanggil setiap ada perubahan)
-function saveToDatabase() {
-    localStorage.setItem('billiardPlayers', JSON.stringify(players));
-    
-    const currentScores = {
-        s1: document.getElementById('score1').innerText,
-        s2: document.getElementById('score2').innerText
-    };
-    localStorage.setItem('lastScores', JSON.stringify(currentScores));
-}
-
-// 3. Modifikasi fungsi yang sudah ada agar otomatis simpan
-function registerPlayer() {
-    const nameInput = document.getElementById('playerName');
-    const gradeInput = document.getElementById('playerGrade');
-    
-    if (nameInput.value === "") return;
-
-    const newPlayer = { id: Date.now(), name: nameInput.value, grade: gradeInput.value };
-    players.push(newPlayer);
-    
-    updatePlayerList();
-    saveToDatabase(); // <--- Simpan ke DB
-    nameInput.value = "";
-}
-
-function updateScore(id, val) {
-    const scoreElement = document.getElementById(id);
-    let currentScore = parseInt(scoreElement.innerText);
-    
-    if (currentScore < 7) {
-        scoreElement.innerText = currentScore + val;
-        saveToDatabase(); // <--- Simpan skor terbaru
     }
 }
-function extension() {
-    timeLeft += 30;
-    updateTimerUI();
-    alert("Extension Digunakan! +30 Detik");
+
+// --- 6. RENDER UI (UPDATE TAMPILAN) ---
+function renderAll() {
+    renderPlayerList();
+    renderLeagueTable();
+    renderMatchHistory();
 }
-function exportToExcel() {
+
+function renderPlayerList() {
+    const list = document.getElementById('playerList');
+    document.getElementById('playerCount').innerText = players.length;
+    
     if (players.length === 0) {
-        alert("Tidak ada data pemain untuk diekspor!");
+        list.innerHTML = `<p class="text-slate-500 italic">Belum ada pemain.</p>`;
         return;
     }
 
-    // Header Kolom
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "No,Nama Pemain,Grade,Status\r\n";
-
-    // Isi Data dari Database LocalStorage
-    players.forEach((p, index) => {
-        let row = `${index + 1},${p.name},${p.grade},Terdaftar`;
-        csvContent += row + "\r\n";
-    });
-
-    // Menambahkan info skor terakhir jika perlu
-    const s1 = document.getElementById('score1').innerText;
-    const s2 = document.getElementById('score2').innerText;
-    const p1 = document.getElementById('p1DisplayName').innerText;
-    const p2 = document.getElementById('p2DisplayName').innerText;
-
-    csvContent += `\r\nSKOR PERTANDINGAN TERAKHIR\r\n`;
-    csvContent += `${p1} vs ${p2}\r\n`;
-    csvContent += `Skor: ${s1} - ${s2}\r\n`;
-
-    // Proses Download
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Laporan_Turnamen_Billiard.csv");
-    document.body.appendChild(link);
-
-    link.click();
-    document.body.removeChild(link);
-}
-// Tambahkan stats ke dalam objek pemain saat registrasi
-function registerPlayer() {
-    const name = document.getElementById('playerName');
-    const grade = document.getElementById('playerGrade');
-    if (!name.value) return alert("Masukkan nama!");
-
-    players.push({ 
-        id: Date.now(), 
-        name: name.value, 
-        grade: grade.value,
-        played: 0,
-        wins: 0,
-        losses: 0,
-        margin: 0,
-        points: 0
-    });
-    
-    name.value = "";
-    updatePlayerList();
-    updateLeagueTable(); // Update tabel klasemen
-    saveToDatabase();
-}
-
-// Fungsi untuk mencatat hasil pertandingan ke klasemen
-function finishMatch(winnerSlot) {
-    const s1 = parseInt(document.getElementById('score1').innerText);
-    const s2 = parseInt(document.getElementById('score2').innerText);
-    const n1 = document.getElementById('p1DisplayName').innerText;
-    const n2 = document.getElementById('p2DisplayName').innerText;
-
-    // Logika pencarian pemain di array berdasarkan nama
-    // (Dalam aplikasi nyata, sebaiknya gunakan ID)
-    let player1 = players.find(p => n1.includes(p.name));
-    let player2 = players.find(p => n2.includes(p.name));
-
-    if (!player1 || !player2) return alert("Pilih pemain dari daftar terlebih dahulu!");
-
-    if (winnerSlot === 1) {
-        player1.wins++; player1.points += 3;
-        player2.losses++;
-        player1.margin += (s1 - s2);
-        player2.margin += (s2 - s1);
-    } else {
-        player2.wins++; player2.points += 3;
-        player1.losses++;
-        player2.margin += (s2 - s1);
-        player1.margin += (s1 - s2);
-    }
-    
-    player1.played++;
-    player2.played++;
-
-    updateLeagueTable();
-    saveToDatabase();
-    alert("Hasil pertandingan telah disimpan ke klasemen!");
-}
-
-function updateLeagueTable() {
-    const tbody = document.getElementById('leagueTableBody');
-    
-    // Urutkan berdasarkan Poin tertinggi, lalu Margin tertinggi
-    const sortedPlayers = [...players].sort((a, b) => b.points - a.points || b.margin - a.margin);
-    
-    tbody.innerHTML = sortedPlayers.map((p, i) => `
-        <tr class="border-b border-slate-700 hover:bg-slate-700/50 transition">
-            <td class="p-3">${i + 1}</td>
-            <td class="p-3 font-bold">${p.name} <span class="text-xs text-blue-400">(${p.grade})</span></td>
-            <td class="p-3 text-center">${p.played}</td>
-            <td class="p-3 text-center text-green-400">${p.wins}</td>
-            <td class="p-3 text-center text-red-400">${p.losses}</td>
-            <td class="p-3 text-center font-mono">${p.margin > 0 ? '+' : ''}${p.margin}</td>
-            <td class="p-3 text-center font-black bg-yellow-900/10 text-yellow-500">${p.points}</td>
-        </tr>
-    `).join('');
-}
-let matchLogs = [];
-
-// Tambahkan ini di window.onload agar riwayat tidak hilang saat refresh
-// (Masukkan ke dalam fungsi window.onload yang sudah ada)
-const savedLogs = localStorage.getItem('billiardLogs');
-if (savedLogs) {
-    matchLogs = JSON.parse(savedLogs);
-    updateMatchHistoryUI();
-}
-
-function finishMatch() {
-    const s1 = parseInt(document.getElementById('score1').innerText);
-    const s2 = parseInt(document.getElementById('score2').innerText);
-    const n1 = document.getElementById('p1DisplayName').innerText;
-    const n2 = document.getElementById('p2DisplayName').innerText;
-
-    if (n1 === "PLAYER 1" || n2 === "PLAYER 2") {
-        alert("Pilih pemain terlebih dahulu!");
-        return;
-    }
-
-    if (!confirm(`Selesaikan pertandingan: ${n1} vs ${n2}?`)) return;
-
-    // 1. Simpan ke Riwayat
-    const newLog = {
-        id: Date.now(),
-        player1: n1,
-        player2: n2,
-        score1: s1,
-        score2: s2,
-        time: new Date().toLocaleTimeString(),
-        winner: s1 > s2 ? n1 : s2 > s1 ? n2 : "Draw"
-    };
-
-    matchLogs.unshift(newLog); // Tambah ke urutan paling atas
-    
-    // 2. Update Poin Klasemen (Logika yang kita bahas sebelumnya)
-    updatePointsLogic(n1, n2, s1, s2);
-
-    // 3. Update UI & Simpan
-    updateMatchHistoryUI();
-    saveToDatabase();
-    
-    // 4. Reset Papan Skor untuk Match Berikutnya
-    document.getElementById('score1').innerText = 0;
-    document.getElementById('score2').innerText = 0;
-}
-
-function updateMatchHistoryUI() {
-    const historyContainer = document.getElementById('matchHistory');
-    if (matchLogs.length === 0) return;
-
-    historyContainer.innerHTML = matchLogs.map(log => `
-        <div class="bg-slate-900 p-4 rounded-xl border-l-4 ${log.score1 > log.score2 ? 'border-blue-500' : 'border-red-500'} flex justify-between items-center shadow-inner">
-            <div>
-                <div class="text-xs text-slate-500 font-bold uppercase">${log.time}</div>
-                <div class="text-sm">
-                    <span class="${log.score1 > log.score2 ? 'font-black text-white' : 'text-slate-400'}">${log.player1}</span>
-                    <span class="mx-2 text-yellow-500 font-bold">${log.score1} - ${log.score2}</span>
-                    <span class="${log.score2 > log.score1 ? 'font-black text-white' : 'text-slate-400'}">${log.player2}</span>
-                </div>
-            </div>
-            <div class="text-[10px] bg-slate-800 px-2 py-1 rounded border border-slate-700 font-bold text-green-400">
-                WINNER: ${log.winner.split(' (')[0]}
+    list.innerHTML = players.map(p => `
+        <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700 shadow-sm">
+            <span class="font-bold text-sm">${p.name} <small class="text-blue-500 font-normal">${p.grade}</small></span>
+            <div class="flex space-x-1">
+                <button onclick="setPlayer('${p.name}', '${p.grade}', 1)" class="bg-blue-600 hover:bg-blue-500 text-[10px] px-2 py-1 rounded font-bold uppercase transition">P1</button>
+                <button onclick="setPlayer('${p.name}', '${p.grade}', 2)" class="bg-red-600 hover:bg-red-500 text-[10px] px-2 py-1 rounded font-bold uppercase transition">P2</button>
             </div>
         </div>
     `).join('');
 }
 
-// Tambahkan 'billiardLogs' ke fungsi saveToDatabase Anda
-localStorage.setItem('billiardLogs', JSON.stringify(matchLogs));
+function renderLeagueTable() {
+    const tableBody = document.getElementById('leagueTableBody');
+    // Urutkan berdasarkan Poin, lalu Margin
+    const sorted = [...players].sort((a, b) => b.points - a.points || b.margin - a.margin);
+    
+    tableBody.innerHTML = sorted.map((p, i) => `
+        <tr class="hover:bg-slate-700/30 transition">
+            <td class="p-3 font-digital text-yellow-600">${i + 1}</td>
+            <td class="p-3 font-bold">${p.name} <small class="text-slate-500">${p.grade}</small></td>
+            <td class="p-3 text-center">${p.played}</td>
+            <td class="p-3 text-center text-green-400">${p.wins}</td>
+            <td class="p-3 text-center text-red-400">${p.losses}</td>
+            <td class="p-3 text-center">${p.margin > 0 ? '+' : ''}${p.margin}</td>
+            <td class="p-3 text-center font-black bg-yellow-900/10 text-yellow-500">${p.points}</td>
+        </tr>
+    `).join('');
+}
 
+function renderMatchHistory() {
+    const history = document.getElementById('matchHistory');
+    if (matchLogs.length === 0) {
+        history.innerHTML = `<p class="text-slate-500 italic text-sm">Belum ada pertandingan.</p>`;
+        return;
+    }
+
+    history.innerHTML = matchLogs.map(log => `
+        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 flex justify-between items-center animate-fade-in shadow-inner">
+            <div>
+                <span class="font-bold text-white">${log.p1}</span> 
+                <span class="mx-2 text-yellow-500 font-black">${log.s1} - ${log.s2}</span> 
+                <span class="font-bold text-white">${log.p2}</span>
+            </div>
+            <span class="text-[9px] uppercase text-slate-500 bg-slate-800 px-2 py-1 rounded italic">${log.time}</span>
+        </div>
+    `).join('');
+}
+
+// --- 7. EKSPOR DATA ---
+function exportToExcel() {
+    if (players.length === 0) return alert("Data kosong!");
+    
+    let csv = "Posisi,Nama,Grade,Main,Menang,Kalah,Margin,Poin\n";
+    const sorted = [...players].sort((a, b) => b.points - a.points || b.margin - a.margin);
+    
+    sorted.forEach((p, i) => {
+        csv += `${i+1},${p.name},${p.grade},${p.played},${p.wins},${p.losses},${p.margin},${p.points}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'Laporan_Liga_Billiard.csv');
+    a.click();
+}
