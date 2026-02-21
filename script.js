@@ -52,3 +52,54 @@ function setMatch(id) {
         p2Name.innerText = `${selectedPlayer.name} (${selectedPlayer.grade})`;
     }
 }
+let timeLeft = 30;
+let timerId = null;
+
+function startTimer() {
+    // Stop timer jika sedang berjalan sebelum mulai baru
+    clearInterval(timerId);
+    timeLeft = 30;
+    updateTimerUI();
+
+    timerId = setInterval(() => {
+        timeLeft--;
+        updateTimerUI();
+
+        if (timeLeft <= 0) {
+            clearInterval(timerId);
+            playAlertSound(); // Opsional: Bunyi buzzer
+            alert("WAKTU HABIS! FOUL!");
+        }
+    }, 1000);
+}
+
+function resetTimer() {
+    clearInterval(timerId);
+    timeLeft = 30;
+    updateTimerUI();
+}
+
+function updateTimerUI() {
+    const display = document.getElementById('timerDisplay');
+    const container = document.getElementById('timerContainer');
+    display.innerText = timeLeft;
+
+    // Perubahan Warna Indikator
+    if (timeLeft > 15) {
+        container.style.borderColor = "#16a34a"; // Hijau
+    } else if (timeLeft <= 15 && timeLeft > 5) {
+        container.style.borderColor = "#ca8a04"; // Kuning
+    } else {
+        container.style.borderColor = "#dc2626"; // Merah
+        // Efek kedip saat kritis
+        display.classList.add("animate-pulse");
+    }
+
+    if (timeLeft > 5) display.classList.remove("animate-pulse");
+}
+
+function playAlertSound() {
+    // Anda bisa menambahkan file audio buzzer di sini jika ingin
+    console.log("Buzzer Sound!");
+}
+
