@@ -102,4 +102,61 @@ function playAlertSound() {
     // Anda bisa menambahkan file audio buzzer di sini jika ingin
     console.log("Buzzer Sound!");
 }
+// 1. Fungsi untuk Memuat Data Saat Aplikasi Dibuka
+window.onload = function() {
+    const savedPlayers = localStorage.getItem('billiardPlayers');
+    if (savedPlayers) {
+        players = JSON.parse(savedPlayers);
+        updatePlayerList();
+    }
+    
+    // Memuat skor terakhir jika ada
+    const savedScores = localStorage.getItem('lastScores');
+    if (savedScores) {
+        const scores = JSON.parse(savedScores);
+        document.getElementById('score1').innerText = scores.s1;
+        document.getElementById('score2').innerText = scores.s2;
+    }
+};
+
+// 2. Fungsi Simpan Data (Dipanggil setiap ada perubahan)
+function saveToDatabase() {
+    localStorage.setItem('billiardPlayers', JSON.stringify(players));
+    
+    const currentScores = {
+        s1: document.getElementById('score1').innerText,
+        s2: document.getElementById('score2').innerText
+    };
+    localStorage.setItem('lastScores', JSON.stringify(currentScores));
+}
+
+// 3. Modifikasi fungsi yang sudah ada agar otomatis simpan
+function registerPlayer() {
+    const nameInput = document.getElementById('playerName');
+    const gradeInput = document.getElementById('playerGrade');
+    
+    if (nameInput.value === "") return;
+
+    const newPlayer = { id: Date.now(), name: nameInput.value, grade: gradeInput.value };
+    players.push(newPlayer);
+    
+    updatePlayerList();
+    saveToDatabase(); // <--- Simpan ke DB
+    nameInput.value = "";
+}
+
+function updateScore(id, val) {
+    const scoreElement = document.getElementById(id);
+    let currentScore = parseInt(scoreElement.innerText);
+    
+    if (currentScore < 7) {
+        scoreElement.innerText = currentScore + val;
+        saveToDatabase(); // <--- Simpan skor terbaru
+    }
+}
+function extension() {
+    timeLeft += 30;
+    updateTimerUI();
+    alert("Extension Digunakan! +30 Detik");
+}
 
