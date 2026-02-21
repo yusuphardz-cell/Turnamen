@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billiard Tournament Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bracket-connector {
+            position: relative;
+        }
+        .bracket-connector::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+    <nav class="bg-black p-4 border-b border-yellow-500">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-yellow-500">🎱 BilliardLeague</h1>
+            <div class="space-x-4">
+                <a href="#" class="hover:text-yellow-400">Klasemen</a>
+                <a href="#" class="hover:text-yellow-400">Bagan</a>
+                <a href="#" class="bg-yellow-600 px-4 py-2 rounded font-bold">Admin Panel</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        
+        <section class="mb-12 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-2xl">
+            <h2 class="text-xl font-semibold mb-6 text-center text-gray-400">LIVE MATCH - TABLE 1 (RACE TO 7)</h2>
+            <div class="flex justify-around items-center">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-2">Budi <span class="text-sm bg-blue-600 px-2 rounded">G5</span></h3>
+                    <div id="score1" class="text-8xl font-black text-yellow-500 mb-4">0</div>
+                    <button onclick="updateScore('score1', 1)" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-bold transition">+ SCORE</button>
+                </div>
+
+                <div class="text-4xl font-bold text-gray-600 italic">VS</div>
+
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold mb-2">Andi <span class="text-sm bg-blue-600 px-2 rounded">G4</span></h3>
+                    <div id="score2" class="text-8xl font-black text-yellow-500 mb-4">0</div>
+                    <button onclick="updateScore('score2', 1)" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-bold transition">+ SCORE</button>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <button onclick="resetScore()" class="text-sm text-gray-500 underline uppercase tracking-widest">Reset Match</button>
+            </div>
+        </section>
+
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-yellow-500 pl-3">Turnamen Bracket (Semi-Final)</h2>
+        <div class="flex items-center space-x-12 overflow-x-auto pb-10">
+            <div class="space-y-8">
+                <div class="bg-gray-800 p-3 rounded border border-gray-600 w-48 bracket-connector">
+                    <div class="flex justify-between border-b border-gray-700 pb-1"><span>Budi</span> <span>7</span></div>
+                    <div class="flex justify-between pt-1 text-gray-500 italic"><span>Andi</span> <span>4</span></div>
+                </div>
+                <div class="bg-gray-800 p-3 rounded border border-gray-600 w-48 bracket-connector">
+                    <div class="flex justify-between border-b border-gray-700 pb-1"><span>Candra</span> <span>2</span></div>
+                    <div class="flex justify-between pt-1 font-bold text-yellow-500 italic"><span>Dedi (LIVE)</span> <span>5</span></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="bg-yellow-900/30 p-4 rounded border-2 border-yellow-500 w-56">
+                    <div class="text-xs uppercase text-yellow-500 font-bold mb-2">Grand Final</div>
+                    <div class="flex justify-between border-b border-yellow-800 pb-1 font-bold"><span>Budi</span> <span>-</span></div>
+                    <div class="flex justify-between pt-1 font-bold text-gray-500"><span>TBD</span> <span>-</span></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Logika sederhana untuk update skor
+        function updateScore(id, val) {
+            const scoreElement = document.getElementById(id);
+            let currentScore = parseInt(scoreElement.innerText);
+            
+            // Misal Race to 7
+            if (currentScore < 7) {
+                scoreElement.innerText = currentScore + val;
+            }
+
+            if (parseInt(scoreElement.innerText) === 7) {
+                alert("Game Over! Kami memiliki pemenang!");
+            }
+        }
+
+        function resetScore() {
+            document.getElementById('score1').innerText = 0;
+            document.getElementById('score2').innerText = 0;
+        }
+    </script>
+</body>
+</html>
