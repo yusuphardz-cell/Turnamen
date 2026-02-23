@@ -3,32 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Pro League System</title>
+    <title>Billiard Pro League - Randomizer Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
         
-        :root {
-            --primary: #fbbf24;
-            --bg-dark: #0f172a;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
+            background-color: #0f172a;
             background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
         }
 
         .font-digital { font-family: 'Orbitron', sans-serif; }
 
-        /* Custom CSS - Glassmorphism Effect */
         .glass-card {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Animations */
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
@@ -39,41 +32,16 @@
             animation: pulse-red 1s infinite;
             border-color: #dc2626 !important;
         }
-
-        .match-entry {
-            animation: slideIn 0.3s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* Table Styling */
-        tr:nth-child(1) .rank-badge { background: #f59e0b; color: #000; }
-        tr:nth-child(2) .rank-badge { background: #94a3b8; color: #000; }
-        tr:nth-child(3) .rank-badge { background: #b45309; color: #000; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen">
 
     <nav class="bg-black/50 border-b border-white/10 p-4 sticky top-0 z-50 backdrop-blur-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-black tracking-widest font-digital text-yellow-500">
-                🎱 BILLIARD<span class="text-white">LEAGUE</span>
-            </h1>
+            <h1 class="text-xl font-black tracking-widest font-digital text-yellow-500">🎱 BILLIARD<span class="text-white">PRO</span></h1>
             <div class="flex gap-2">
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-emerald-900/20">
-                    SAVE EXCEL
-                </button>
-                <button onclick="clearDatabase()" class="bg-rose-900/50 hover:bg-rose-800 px-4 py-1.5 rounded-full text-xs font-bold border border-rose-500/30 transition-all">
-                    RESET
-                </button>
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 rounded-full text-xs font-bold transition-all">SAVE EXCEL</button>
+                <button onclick="clearDatabase()" class="bg-rose-900/50 hover:bg-rose-800 px-4 py-1.5 rounded-full text-xs font-bold border border-rose-500/30 transition-all">RESET</button>
             </div>
         </div>
     </nav>
@@ -83,21 +51,20 @@
             
             <div class="lg:col-span-4 space-y-6">
                 <section class="glass-card p-6 rounded-3xl shadow-2xl">
-                    <h3 class="text-lg font-bold mb-4 text-yellow-500 flex items-center gap-2">
-                        <span>📝</span> Daftar Pemain
-                    </h3>
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="playerName" placeholder="Nama..." class="flex-1 p-3 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none transition-all">
+                    <h3 class="text-lg font-bold mb-4 text-yellow-500 flex items-center gap-2"><span>📝</span> Pendaftaran</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="playerName" placeholder="Nama..." class="flex-1 p-3 bg-slate-900/50 border border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none">
                         <select id="playerGrade" class="p-3 bg-slate-900/50 border border-slate-700 rounded-xl text-yellow-500 font-bold">
                             <option>G4</option><option>G5</option><option>G6</option><option>G7</option>
                         </select>
-                        <button onclick="registerPlayer()" class="bg-yellow-500 hover:bg-yellow-400 text-black p-3 rounded-xl font-bold transition-transform active:scale-90">
-                            +
-                        </button>
+                        <button onclick="registerPlayer()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 rounded-xl font-bold">+</button>
                     </div>
+
+                    <button onclick="randomizeMatch()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 mb-6">
+                        <span>🎲</span> ACAK PERTANDINGAN
+                    </button>
                     
-                    <div id="playerList" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                        </div>
+                    <div id="playerList" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
                 </section>
             </div>
 
@@ -105,80 +72,60 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                     <div class="flex justify-center md:order-2">
-                        <div id="timerContainer" class="w-44 h-44 rounded-full border-4 border-slate-700 flex flex-col items-center justify-center glass-card transition-all duration-300 relative">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Shot Clock</span>
-                            <div id="timerDisplay" class="text-6xl font-digital font-black">30</div>
+                        <div id="timerContainer" class="w-40 h-40 rounded-full border-4 border-slate-700 flex flex-col items-center justify-center glass-card relative">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Shot Clock</span>
+                            <div id="timerDisplay" class="text-5xl font-digital font-black">30</div>
                             <div class="flex gap-2 mt-2">
-                                <button onclick="startTimer()" class="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-bold">START</button>
-                                <button onclick="extension()" class="bg-purple-600 px-3 py-1 rounded-full text-[10px] font-bold">EXT</button>
+                                <button onclick="startTimer()" class="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Start</button>
+                                <button onclick="extension()" class="bg-purple-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase">Ext</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-card p-6 rounded-3xl text-center md:order-1 relative overflow-hidden border-b-4 border-blue-500">
-                        <h2 id="p1DisplayName" class="text-sm font-bold text-blue-400 mb-2 truncate">PLAYER 1</h2>
+                    <div class="glass-card p-6 rounded-3xl text-center md:order-1 border-b-4 border-blue-500">
+                        <h2 id="p1DisplayName" class="text-sm font-bold text-blue-400 mb-2 truncate font-digital uppercase tracking-tighter">PLAYER 1</h2>
                         <div id="score1" class="text-7xl font-black font-digital my-4">0</div>
-                        <button onclick="updateScore('score1', 1)" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-2xl font-black text-xl transition-all active:scale-95 shadow-lg shadow-blue-900/40">
-                            WIN FRAME
-                        </button>
+                        <button onclick="updateScore('score1', 1)" class="w-full bg-blue-600 py-3 rounded-2xl font-black text-xl active:scale-95 transition-all">+ FRAME</button>
                     </div>
 
-                    <div class="glass-card p-6 rounded-3xl text-center md:order-3 relative overflow-hidden border-b-4 border-rose-500">
-                        <h2 id="p2DisplayName" class="text-sm font-bold text-rose-400 mb-2 truncate">PLAYER 2</h2>
+                    <div class="glass-card p-6 rounded-3xl text-center md:order-3 border-b-4 border-rose-500">
+                        <h2 id="p2DisplayName" class="text-sm font-bold text-rose-400 mb-2 truncate font-digital uppercase tracking-tighter">PLAYER 2</h2>
                         <div id="score2" class="text-7xl font-black font-digital my-4">0</div>
-                        <button onclick="updateScore('score2', 1)" class="w-full bg-rose-600 hover:bg-rose-500 py-3 rounded-2xl font-black text-xl transition-all active:scale-95 shadow-lg shadow-rose-900/40">
-                            WIN FRAME
-                        </button>
+                        <button onclick="updateScore('score2', 1)" class="w-full bg-rose-600 py-3 rounded-2xl font-black text-xl active:scale-95 transition-all">+ FRAME</button>
                     </div>
                 </div>
 
-                <button onclick="finishMatch()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 py-4 rounded-2xl font-black text-lg tracking-widest shadow-xl hover:from-emerald-500 hover:to-teal-500 transition-all active:scale-[0.98]">
-                    SELESAIKAN PERTANDINGAN
+                <button onclick="finishMatch()" class="w-full bg-emerald-600 py-4 rounded-2xl font-black text-lg tracking-widest shadow-xl active:scale-[0.98] transition-all">
+                    SIMPAN HASIL PERTANDINGAN
                 </button>
 
                 <section class="glass-card rounded-3xl overflow-hidden shadow-2xl">
-                    <div class="p-6 border-b border-white/5 bg-white/5">
-                        <h3 class="text-lg font-bold text-yellow-500 flex items-center gap-2">
-                            <span>🏆</span> Klasemen Sementara
-                        </h3>
-                    </div>
+                    <div class="p-4 bg-white/5 font-bold text-yellow-500">🏆 KLASEMEN LIGA</div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead class="text-[10px] uppercase text-slate-500 bg-slate-900/50">
                                 <tr>
-                                    <th class="p-4">Pos</th>
+                                    <th class="p-4 text-center">Pos</th>
                                     <th class="p-4">Pemain</th>
-                                    <th class="p-4 text-center">Main</th>
-                                    <th class="p-4 text-center text-emerald-400">M</th>
-                                    <th class="p-4 text-center text-rose-400">K</th>
-                                    <th class="p-4 text-center">+/-</th>
-                                    <th class="p-4 text-center text-yellow-500">Poin</th>
+                                    <th class="p-4 text-center text-emerald-400">W</th>
+                                    <th class="p-4 text-center text-rose-400">L</th>
+                                    <th class="p-4 text-center text-yellow-500 text-lg uppercase font-black">Pts</th>
                                 </tr>
                             </thead>
-                            <tbody id="leagueTableBody" class="text-sm divide-y divide-white/5">
-                                </tbody>
+                            <tbody id="leagueTableBody" class="text-sm divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </section>
-
-                <section class="glass-card p-6 rounded-3xl shadow-xl">
-                    <h3 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest">Log Pertandingan Terakhir</h3>
-                    <div id="matchHistory" class="space-y-2">
-                        </div>
-                </section>
-
             </div>
         </div>
     </div>
-    
+
     <script>
-        // DATA STATE
         let players = [];
         let matchLogs = [];
         let timeLeft = 30;
         let timerId = null;
 
-        // LOAD DATA
         window.onload = function() {
             const p = localStorage.getItem('bill_players');
             const l = localStorage.getItem('bill_logs');
@@ -192,26 +139,39 @@
             localStorage.setItem('bill_logs', JSON.stringify(matchLogs));
         }
 
-        // PLAYERS
+        // FUNGSI ACAK PERTANDINGAN
+        function randomizeMatch() {
+            if (players.length < 2) return alert("Butuh minimal 2 pemain!");
+            
+            // Acak urutan array
+            let shuffled = [...players].sort(() => 0.5 - Math.random());
+            
+            // Pilih 2 pemain pertama
+            const p1 = shuffled[0];
+            const p2 = shuffled[1];
+
+            setPlayer(p1.name, p1.grade, 1);
+            setPlayer(p2.name, p2.grade, 2);
+            
+            document.getElementById('score1').innerText = "0";
+            document.getElementById('score2').innerText = "0";
+            resetTimer();
+
+            alert(`🎲 Pertandingan Acak: ${p1.name} vs ${p2.name}`);
+        }
+
         function registerPlayer() {
             const n = document.getElementById('playerName');
             const g = document.getElementById('playerGrade');
             if(!n.value.trim()) return;
-
-            players.push({
-                name: n.value.trim(), grade: g.value,
-                m:0, w:0, l:0, diff:0, pts:0
-            });
-            n.value = "";
-            renderAll(); save();
+            players.push({ name: n.value.trim(), grade: g.value, m:0, w:0, l:0, diff:0, pts:0 });
+            n.value = ""; renderAll(); save();
         }
 
         function setPlayer(name, grade, slot) {
             document.getElementById(`p${slot}DisplayName`).innerText = `${name} (${grade})`;
-            resetTimer();
         }
 
-        // SCORING
         function updateScore(id, val) {
             const el = document.getElementById(id);
             el.innerText = parseInt(el.innerText) + val;
@@ -241,13 +201,13 @@
 
             matchLogs.unshift({t: new Date().toLocaleTimeString(), p1: name1, p2: name2, s1, s2});
             
-            // Reset Board
             document.getElementById('score1').innerText = 0;
             document.getElementById('score2').innerText = 0;
             document.getElementById('p1DisplayName').innerText = "PLAYER 1";
             document.getElementById('p2DisplayName').innerText = "PLAYER 2";
 
             renderAll(); save();
+            alert("Berhasil disimpan!");
         }
 
         // TIMER
@@ -268,50 +228,36 @@
             else c.classList.remove('timer-critical');
         }
 
-        // RENDER
         function renderAll() {
-            // Player List
             const pl = document.getElementById('playerList');
             pl.innerHTML = players.map(p => `
-                <div class="bg-slate-900/80 p-3 rounded-2xl flex justify-between items-center border border-white/5 match-entry">
-                    <span class="font-bold text-sm">${p.name} <small class="text-blue-500 font-normal">${p.grade}</small></span>
+                <div class="bg-slate-900/80 p-3 rounded-2xl flex justify-between items-center border border-white/5">
+                    <span class="font-bold text-sm">${p.name} <small class="text-blue-500">${p.grade}</small></span>
                     <div class="flex gap-1">
-                        <button onclick="setPlayer('${p.name}', '${p.grade}', 1)" class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase">P1</button>
-                        <button onclick="setPlayer('${p.name}', '${p.grade}', 2)" class="bg-rose-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase">P2</button>
+                        <button onclick="setPlayer('${p.name}', '${p.grade}', 1)" class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold">P1</button>
+                        <button onclick="setPlayer('${p.name}', '${p.grade}', 2)" class="bg-rose-600 px-2 py-1 rounded text-[10px] font-bold">P2</button>
                     </div>
                 </div>
             `).join('');
 
-            // League Table
             const sorted = [...players].sort((a,b) => b.pts - a.pts || b.diff - a.diff);
             document.getElementById('leagueTableBody').innerHTML = sorted.map((p,i) => `
                 <tr class="hover:bg-white/5 transition">
-                    <td class="p-4"><span class="rank-badge w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-bold">${i+1}</span></td>
-                    <td class="p-4 font-bold text-white">${p.name} <small class="text-slate-500 uppercase">${p.grade}</small></td>
-                    <td class="p-4 text-center">${p.m}</td>
+                    <td class="p-4 text-center font-bold text-yellow-500">${i+1}</td>
+                    <td class="p-4 font-bold">${p.name} <small class="text-slate-500">${p.grade}</small></td>
                     <td class="p-4 text-center text-emerald-400 font-bold">${p.w}</td>
-                    <td class="p-4 text-center text-rose-400">${p.l}</td>
-                    <td class="p-4 text-center font-mono">${p.diff > 0 ? '+' : ''}${p.diff}</td>
+                    <td class="p-4 text-center text-rose-400 font-bold">${p.l}</td>
                     <td class="p-4 text-center font-black text-yellow-500 text-lg">${p.pts}</td>
                 </tr>
-            `).join('');
-
-            // History
-            document.getElementById('matchHistory').innerHTML = matchLogs.map(l => `
-                <div class="bg-black/20 p-3 rounded-xl flex justify-between text-xs border border-white/5">
-                    <span>${l.p1} <b class="text-yellow-500 mx-1">${l.s1}-${l.s2}</b> ${l.p2}</span>
-                    <span class="text-slate-600">${l.t}</span>
-                </div>
             `).join('');
         }
 
         function exportToExcel() {
-            let csv = "Nama,Poin,Main,Menang,Kalah,Diff\n";
-            players.forEach(p => csv += `${p.name},${p.pts},${p.m},${p.w},${p.l},${p.diff}\n`);
+            let csv = "Nama,Poin,W,L,Diff\n";
+            players.forEach(p => csv += `${p.name},${p.pts},${p.w},${p.l},${p.diff}\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = 'Klasemen_Billiard.csv'; a.click();
+            a.href = URL.createObjectURL(blob); a.download = 'Liga_Billiard.csv'; a.click();
         }
 
         function clearDatabase() {
