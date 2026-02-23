@@ -270,3 +270,21 @@ function exportToExcel() {
     a.setAttribute('download', 'Laporan_Liga_Billiard.csv');
     a.click();
 }
+// 1. Inisialisasi koneksi (Ganti ALAMAT_IP_SERVER dengan IP komputer server Anda)
+const socket = io('http://192.168.1.XX:3000'); 
+
+// 2. Tambahkan logika pengiriman data pada fungsi yang sudah ada
+// Contoh: Jika Anda punya fungsi simpanData()
+function simpanData() {
+    const inputUser = document.getElementById('input-anda').value;
+    
+    // Kirim ke server agar HP/Komputer lain menerima
+    socket.emit('update-data', { pesan: inputUser }); 
+}
+
+// 3. Tambahkan listener untuk menerima data dari perangkat lain
+socket.on('receive-data', (data) => {
+    console.log('Data baru masuk:', data.pesan);
+    // Update tampilan UI website Anda di sini
+    document.getElementById('notifikasi').innerText = "Ada data baru: " + data.pesan;
+});
