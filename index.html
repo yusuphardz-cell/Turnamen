@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Pro - Shareable Edition</title>
+    <title>Billiard Pro - Individual Table Shuffle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -15,38 +15,44 @@
         #share-area { background: #080c14; border-radius: 20px; }
     </style>
 </head>
-<body class="p-4 lg:p-6">
+<body class="p-4 lg:p-6 text-slate-200">
 
     <div class="max-w-7xl mx-auto space-y-6">
-        <div class="flex justify-between items-center glass p-4 rounded-2xl">
+        <div class="flex justify-between items-center glass p-4 rounded-2xl border border-white/5">
             <h1 class="text-xl font-black font-digital text-yellow-500 tracking-tighter">🎱 PRO BILLIARD</h1>
-            <button onclick="clearAll()" class="text-[10px] bg-red-950/30 text-red-500 border border-red-500/30 px-4 py-2 rounded-full font-bold uppercase">Reset Data</button>
+            <button onclick="clearAll()" class="text-[10px] bg-rose-950/30 text-rose-500 border border-rose-500/30 px-4 py-2 rounded-full font-bold uppercase hover:bg-rose-500 hover:text-white transition">Reset Data</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-3 space-y-4">
                 <div class="glass p-5 rounded-2xl">
-                    <h3 class="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-widest">Registrasi</h3>
-                    <input type="text" id="pName" placeholder="Nama..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-3 outline-none focus:border-yellow-500">
+                    <h3 class="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-widest">Registrasi Pemain</h3>
+                    <input type="text" id="pName" placeholder="Nama Pemain..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-3 outline-none focus:border-yellow-500">
                     <select id="pGrade" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-4 text-yellow-500 font-bold uppercase">
                         <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option><option>Grade 7</option>
                     </select>
                     <button onclick="addPlayer()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/20">TAMBAHKAN</button>
                 </div>
                 
-                <button onclick="smartRandomize()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-black shadow-xl flex flex-col items-center justify-center gap-1 active:scale-95 transition">
-                    <span class="text-lg">🎲 ACAK MEJA</span>
-                    <span class="text-[9px] opacity-70 uppercase tracking-widest">Isi Meja Kosong</span>
-                </button>
+                <div class="grid grid-cols-1 gap-3">
+                    <button onclick="shuffleByTable(1)" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-xl flex flex-col items-center justify-center transition active:scale-95">
+                        <span class="text-sm">🎲 ACAK MEJA 1</span>
+                        <span class="text-[8px] opacity-70 uppercase tracking-widest">Cari Lawan Baru</span>
+                    </button>
+                    <button onclick="shuffleByTable(2)" class="w-full bg-rose-600 hover:bg-rose-500 py-4 rounded-2xl font-black shadow-xl flex flex-col items-center justify-center transition active:scale-95">
+                        <span class="text-sm">🎲 ACAK MEJA 2</span>
+                        <span class="text-[8px] opacity-70 uppercase tracking-widest">Cari Lawan Baru</span>
+                    </button>
+                </div>
                 
                 <div id="playerList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
             </div>
 
             <div class="lg:col-span-9 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div id="card_t1" class="glass p-6 rounded-[2rem] transition-all duration-500">
+                    <div id="card_t1" class="glass p-6 rounded-[2rem] transition-all duration-500 border border-white/5">
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-[10px] font-black bg-slate-800 px-3 py-1 rounded-full text-slate-400 uppercase tracking-widest">Table 01</span>
+                            <span class="text-[10px] font-black bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full uppercase tracking-widest">Table 01</span>
                             <div id="t1_timer_display" class="text-xs font-digital text-yellow-500 font-bold">00:00:00</div>
                         </div>
                         <div class="flex justify-between items-center text-center gap-4 mb-8">
@@ -68,9 +74,9 @@
                         </div>
                     </div>
 
-                    <div id="card_t2" class="glass p-6 rounded-[2rem] transition-all duration-500">
+                    <div id="card_t2" class="glass p-6 rounded-[2rem] transition-all duration-500 border border-white/5">
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-[10px] font-black bg-slate-800 px-3 py-1 rounded-full text-slate-400 uppercase tracking-widest">Table 02</span>
+                            <span class="text-[10px] font-black bg-rose-600/20 text-rose-400 px-3 py-1 rounded-full uppercase tracking-widest">Table 02</span>
                             <div id="t2_timer_display" class="text-xs font-digital text-yellow-500 font-bold">00:00:00</div>
                         </div>
                         <div class="flex justify-between items-center text-center gap-4 mb-8">
@@ -95,13 +101,13 @@
 
                 <div class="space-y-4">
                     <div class="flex justify-between items-center px-2">
-                        <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">🏆 Klasemen Akhir</h2>
+                        <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">🏆 Klasemen Ranking</h2>
                         <button onclick="downloadKlasemen()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-2 shadow-lg transition active:scale-95">
                             📸 SHARE JPG
                         </button>
                     </div>
 
-                    <div id="share-area" class="p-6 border border-white/10">
+                    <div id="share-area" class="p-6 border border-white/10 shadow-2xl">
                         <div class="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
                             <span class="text-2xl">🎱</span>
                             <div>
@@ -114,16 +120,13 @@
                                 <thead class="bg-white/5 text-slate-500 uppercase text-[9px]">
                                     <tr><th class="p-4">Rank</th><th class="p-4">Nama Peserta</th><th class="p-4 text-center">W</th><th class="p-4 text-center text-yellow-500">Poin</th></tr>
                                 </thead>
-                                <tbody id="rankTable" class="divide-y divide-white/5 font-sans"></tbody>
+                                <tbody id="rankTable" class="divide-y divide-white/5"></tbody>
                             </table>
-                        </div>
-                        <div class="mt-6 text-center">
-                            <p class="text-[7px] text-slate-600 uppercase tracking-widest">Generated by Billiard Pro System</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass rounded-3xl overflow-hidden shadow-2xl">
+                <div class="glass rounded-3xl overflow-hidden border border-white/5">
                     <div class="p-4 bg-white/5 border-b border-white/5 font-black text-blue-400 text-[10px] tracking-widest uppercase">Riwayat Pertandingan</div>
                     <div id="historyList" class="p-4 space-y-3 max-h-60 overflow-y-auto text-[10px]"></div>
                 </div>
@@ -132,15 +135,14 @@
     </div>
 
     <script>
-        // ... (Logika Database & Timer tetap sama seperti sebelumnya) ...
-        let db_players = JSON.parse(localStorage.getItem('bill_smart_p')) || [];
-        let db_history = JSON.parse(localStorage.getItem('bill_smart_h')) || [];
+        let db_players = JSON.parse(localStorage.getItem('bill_final_p')) || [];
+        let db_history = JSON.parse(localStorage.getItem('bill_final_h')) || [];
         let timers = { 1: null, 2: null };
         let timerSeconds = { 1: 0, 2: 0 };
 
         function saveDB() {
-            localStorage.setItem('bill_smart_p', JSON.stringify(db_players));
-            localStorage.setItem('bill_smart_h', JSON.stringify(db_history));
+            localStorage.setItem('bill_final_p', JSON.stringify(db_players));
+            localStorage.setItem('bill_final_h', JSON.stringify(db_history));
             renderAll();
         }
 
@@ -158,42 +160,49 @@
             el.innerText = parseInt(el.innerText) + 1;
         }
 
-        function smartRandomize() {
-            const t1_occupied = document.getElementById('t1_p1').innerText !== "PLAYER 1";
-            const t2_occupied = document.getElementById('t2_p1').innerText !== "PLAYER 2";
-            if (t1_occupied && t2_occupied) return alert("Kedua meja penuh!");
+        // FUNGSI ACAK PER MEJA (MODIFIKASI UTAMA)
+        function shuffleByTable(targetTable) {
+            const p1Text = document.getElementById(`t${targetTable}_p1`).innerText;
+            if(!p1Text.includes("PLAYER") && timerSeconds[targetTable] > 0) {
+                return alert(`Meja ${targetTable} sedang bertanding! Simpan dulu hasil sebelumnya.`);
+            }
 
+            // Cek siapa saja yang sedang main di meja SEBELAH agar tidak terpilih
+            let otherTable = targetTable === 1 ? 2 : 1;
             let busyPlayers = [];
-            if(t1_occupied) busyPlayers.push(document.getElementById('t1_p1').innerText, document.getElementById('t1_p2').innerText);
-            if(t2_occupied) busyPlayers.push(document.getElementById('t2_p1').innerText, document.getElementById('t2_p2').innerText);
+            const otherP1 = document.getElementById(`t${otherTable}_p1`).innerText;
+            const otherP2 = document.getElementById(`t${otherTable}_p2`).innerText;
+            
+            if(!otherP1.includes("PLAYER")) busyPlayers.push(otherP1, otherP2);
 
+            // Filter pasangan yang belum pernah tanding
             let pairs = [];
             for(let i=0; i<db_players.length; i++) {
                 for(let j=i+1; j<db_players.length; j++) {
-                    const n1 = db_players[i].name; const n2 = db_players[j].name;
+                    const n1 = db_players[i].name;
+                    const n2 = db_players[j].name;
+                    
                     if(busyPlayers.includes(n1) || busyPlayers.includes(n2)) continue;
+                    
                     const played = db_history.some(h => (h.p1===n1 && h.p2===n2) || (h.p1===n2 && h.p2===n1));
                     if(!played) pairs.push([db_players[i], db_players[j]]);
                 }
             }
-            if(pairs.length === 0) return alert("Semua sudah bertanding!");
+
+            if(pairs.length === 0) return alert("Tidak ada lawan baru tersedia untuk meja ini!");
+            
             pairs.sort(() => Math.random() - 0.5);
+            const chosen = pairs[0];
 
-            if(!t1_occupied && !t2_occupied) {
-                setTable(1, pairs[0]);
-                if(pairs.length > 1) {
-                    const used = [pairs[0][0].name, pairs[0][1].name];
-                    const secondPair = pairs.find(p => !used.includes(p[0].name) && !used.includes(p[1].name));
-                    if(secondPair) setTable(2, secondPair);
-                }
-            } else if(!t1_occupied) setTable(1, pairs[0]);
-            else if(!t2_occupied) setTable(2, pairs[0]);
-        }
-
-        function setTable(table, pair) {
-            document.getElementById(`t${table}_p1`).innerText = pair[0].name;
-            document.getElementById(`t${table}_p2`).innerText = pair[1].name;
-            document.getElementById(`card_t${table}`).classList.add('active-table');
+            document.getElementById(`t${targetTable}_p1`).innerText = chosen[0].name;
+            document.getElementById(`t${targetTable}_p2`).innerText = chosen[1].name;
+            document.getElementById(`card_t${targetTable}`).classList.add('active-table');
+            
+            // Reset skor dan waktu meja tersebut saat acak baru
+            document.getElementById(`t${targetTable}_s1`).innerText = "0";
+            document.getElementById(`t${targetTable}_s2`).innerText = "0";
+            timerSeconds[targetTable] = 0;
+            document.getElementById(`t${targetTable}_timer_display`).innerText = "00:00:00";
         }
 
         function toggleTimer(table) {
@@ -201,7 +210,7 @@
                 clearInterval(timers[table]); timers[table] = null;
                 document.getElementById(`t${table}_btn_start`).innerText = "Lanjut";
             } else {
-                if(document.getElementById(`t${table}_p1`).innerText.includes("PLAYER")) return alert("Pilih pemain!");
+                if(document.getElementById(`t${table}_p1`).innerText.includes("PLAYER")) return alert("Acak pemain dulu!");
                 document.getElementById(`t${table}_btn_start`).innerText = "Stop";
                 timers[table] = setInterval(() => {
                     timerSeconds[table]++;
@@ -220,32 +229,28 @@
             const p2Name = document.getElementById(`t${table}_p2`).innerText;
             const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
             const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-            if(p1Name.includes("PLAYER") || s1 === s2) return alert("Cek Skor/Pemain!");
+            if(p1Name.includes("PLAYER") || s1 === s2) return alert("Skor seri atau meja kosong!");
             
             let p1 = db_players.find(p => p.name === p1Name), p2 = db_players.find(p => p.name === p2Name);
             if(s1 > s2) { p1.w++; p1.pts += 3; } else { p2.w++; p2.pts += 3; }
             
             db_history.unshift({ p1: p1Name, p2: p2Name, s1, s2, duration: document.getElementById(`t${table}_timer_display`).innerText, time: new Date().toLocaleTimeString() });
             
-            // Reset Meja
             clearInterval(timers[table]); timers[table] = null; timerSeconds[table] = 0;
             document.getElementById(`t${table}_p1`).innerText = "PLAYER " + table;
             document.getElementById(`t${table}_p2`).innerText = "PLAYER " + table;
             document.getElementById(`t${table}_s1`).innerText = "0"; document.getElementById(`t${table}_s2`).innerText = "0";
             document.getElementById(`t${table}_timer_display`).innerText = "00:00:00";
+            document.getElementById(`t${table}_btn_start`).innerText = "Mulai";
             document.getElementById(`card_t${table}`).classList.remove('active-table');
             saveDB();
         }
 
-        // FUNGSI KHUSUS UNTUK DOWNLOAD JPG
         function downloadKlasemen() {
             const area = document.getElementById('share-area');
-            html2canvas(area, {
-                backgroundColor: "#080c14",
-                scale: 2 // Agar gambar tajam
-            }).then(canvas => {
+            html2canvas(area, { backgroundColor: "#080c14", scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Klasemen_Billiard.jpg';
+                link.download = 'Klasemen_Billiard_Official.jpg';
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
             });
@@ -253,9 +258,9 @@
 
         function renderAll() {
             document.getElementById('playerList').innerHTML = db_players.map(p => `
-                <div class="bg-slate-900 p-2 rounded-lg border border-white/5 text-[10px] flex justify-between">
-                    <span class="font-bold uppercase">${p.name}</span>
-                    <span class="text-yellow-500 font-bold">${p.pts} Pts</span>
+                <div class="bg-slate-900 p-2 rounded-lg border border-white/5 text-[10px] flex justify-between shadow-inner">
+                    <span class="font-bold uppercase tracking-tight text-slate-300">${p.name}</span>
+                    <span class="text-yellow-500 font-bold font-digital">${p.pts} Pts</span>
                 </div>
             `).join('');
 
@@ -263,23 +268,23 @@
             document.getElementById('rankTable').innerHTML = sorted.map((p,i) => `
                 <tr class="hover:bg-white/5 transition border-b border-white/5">
                     <td class="p-4 font-digital text-yellow-500 font-bold">${i+1}</td>
-                    <td class="p-4 font-black uppercase text-white">${p.name} <span class="text-[8px] opacity-40 font-sans ml-1">${p.grade}</span></td>
-                    <td class="p-4 text-center font-bold">${p.w}</td>
-                    <td class="p-4 text-center font-digital font-bold text-yellow-500">${p.pts}</td>
+                    <td class="p-4 font-black uppercase text-white">${p.name} <span class="text-[8px] opacity-40 font-sans ml-1 text-slate-400">(${p.grade})</span></td>
+                    <td class="p-4 text-center font-bold text-emerald-400">${p.w}</td>
+                    <td class="p-4 text-center font-digital font-bold text-yellow-500 text-lg">${p.pts}</td>
                 </tr>
             `).join('');
 
             document.getElementById('historyList').innerHTML = db_history.map(h => `
-                <div class="bg-black/40 p-3 rounded-xl border-l-2 border-indigo-500 flex justify-between items-center">
+                <div class="bg-black/40 p-3 rounded-xl border-l-2 border-indigo-500 flex justify-between items-center group">
                     <div class="flex flex-col gap-1 uppercase">
-                        <span class="font-bold">${h.p1} <span class="text-yellow-500 mx-1">${h.s1}-${h.s2}</span> ${h.p2}</span>
-                        <span class="text-[8px] opacity-40">⏳ ${h.duration} | ${h.time}</span>
+                        <span class="font-bold text-slate-200">${h.p1} <span class="text-yellow-500 mx-1 font-digital">${h.s1}-${h.s2}</span> ${h.p2}</span>
+                        <span class="text-[8px] opacity-40 text-slate-400 tracking-widest font-sans">⏳ ${h.duration} | ${h.time}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function clearAll() { if(confirm("Hapus Semua?")) { localStorage.clear(); location.reload(); } }
+        function clearAll() { if(confirm("Hapus seluruh data?")) { localStorage.clear(); location.reload(); } }
         renderAll();
     </script>
 </body>
