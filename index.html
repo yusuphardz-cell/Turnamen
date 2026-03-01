@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Pro - Live Realtime Standings</title>
+    <title>Billiard Pro - Final Championship Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -12,139 +12,140 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #080c14; color: white; }
+        body { font-family: 'Inter', sans-serif; background-color: #05080f; color: white; }
         .font-digital { font-family: 'Orbitron', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .active-table { border-top: 4px solid #eab308; }
+        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .gold-row { background: linear-gradient(90deg, rgba(234,179,8,0.1) 0%, rgba(0,0,0,0) 100%); border-left: 4px solid #eab308 !important; }
+        .silver-row { background: linear-gradient(90deg, rgba(148,163,184,0.1) 0%, rgba(0,0,0,0) 100%); border-left: 4px solid #94a3b8 !important; }
+        .active-table { border-top: 4px solid #3b82f6; }
     </style>
 </head>
-<body class="p-4 lg:p-6 text-slate-200">
+<body class="p-4 lg:p-6">
 
     <script>
-        // GANTI INI dengan data dari Firebase Project Settings Anda
+        // MASUKKAN URL FIREBASE ANDA DI SINI
         const firebaseConfig = {
-            databaseURL: "https://appturnamen-51b2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+            databaseURL: "https://appturnamenj-51b2e-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
     </script>
 
     <div class="max-w-7xl mx-auto space-y-6">
-        <div class="flex justify-between items-center glass p-4 rounded-2xl border border-white/5">
-            <h1 class="text-xl font-black font-digital text-yellow-500 tracking-tighter">🎱 PRO LIVE</h1>
-            <div class="flex gap-2">
-                <span id="status-online" class="bg-emerald-500/20 text-emerald-400 text-[8px] px-2 py-1 rounded-full font-bold uppercase">Live Online</span>
-                <button onclick="clearAllData()" class="text-[8px] bg-rose-950/30 text-rose-500 border border-rose-500/30 px-3 py-1 rounded-full font-bold uppercase">Reset</button>
+        <div class="flex justify-between items-center glass p-5 rounded-2xl border border-white/5">
+            <div>
+                <h1 class="text-xl font-black font-digital text-yellow-500 tracking-tighter uppercase">🎱 Final Championship</h1>
+                <p class="text-[8px] text-slate-500 tracking-[0.3em] font-bold">TIE-BREAKER SYSTEM ENABLED</p>
             </div>
+            <button onclick="clearAllData()" class="text-[10px] bg-rose-600/20 text-rose-500 border border-rose-500/30 px-4 py-2 rounded-full font-black uppercase hover:bg-rose-600 hover:text-white transition">Reset Turnamen</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-3 space-y-4">
                 <div class="glass p-5 rounded-2xl">
-                    <h3 class="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-widest text-center">Registrasi</h3>
-                    <input type="text" id="pName" placeholder="Nama Pemain..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-3 outline-none focus:border-yellow-500 text-sm">
-                    <button onclick="addPlayerOnline()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition">TAMBAHKAN</button>
+                    <h3 class="text-[10px] font-black text-yellow-500 uppercase mb-4 tracking-widest text-center">Registrasi Peserta</h3>
+                    <input type="text" id="pName" placeholder="Nama..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-3 outline-none focus:border-yellow-500 text-sm font-bold">
+                    <button onclick="addPlayerOnline()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-xl hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition active:scale-95">DAFTARKAN</button>
                 </div>
                 
                 <div class="grid grid-cols-1 gap-3">
-                    <button onclick="shuffleByTable(1)" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-2xl font-black shadow-xl flex flex-col items-center justify-center transition">
+                    <button onclick="shuffleByTable(1)" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-xl flex flex-col items-center transition active:scale-95">
                         <span class="text-sm">🎲 ACAK MEJA 1</span>
                     </button>
-                    <button onclick="shuffleByTable(2)" class="w-full bg-rose-600 hover:bg-rose-500 py-3 rounded-2xl font-black shadow-xl flex flex-col items-center justify-center transition">
+                    <button onclick="shuffleByTable(2)" class="w-full bg-rose-600 hover:bg-rose-500 py-4 rounded-2xl font-black shadow-xl flex flex-col items-center transition active:scale-95">
                         <span class="text-sm">🎲 ACAK MEJA 2</span>
                     </button>
                 </div>
-                <div id="playerList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+                <div id="playerList" class="space-y-1.5 max-h-48 overflow-y-auto pr-2"></div>
             </div>
 
             <div class="lg:col-span-9 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div id="card_t1" class="glass p-6 rounded-[2rem] transition-all border border-white/5">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-[10px] font-black bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full uppercase tracking-widest">Table 01</span>
-                            <div id="t1_timer_display" class="text-xs font-digital text-yellow-500 font-bold">00:00:00</div>
+                    <div id="card_t1" class="glass p-6 rounded-[2rem] border border-white/5 transition-all">
+                        <div class="flex justify-between items-center mb-4 text-[10px] font-black">
+                            <span class="bg-blue-600 text-white px-3 py-1 rounded-full uppercase">Table 01</span>
+                            <div id="t1_timer_display" class="font-digital text-yellow-500">00:00:00</div>
                         </div>
                         <div class="flex justify-between items-center text-center gap-4 mb-8">
                             <div class="flex-1">
                                 <p id="t1_p1" class="text-[10px] font-black text-blue-400 uppercase truncate">Player 1</p>
-                                <div id="t1_s1" class="text-6xl font-digital my-2 text-white">0</div>
+                                <div id="t1_s1" class="text-6xl font-digital my-2">0</div>
                                 <button onclick="upScore('t1_s1')" class="w-full bg-blue-600/10 text-blue-500 border border-blue-600/30 py-1.5 rounded-lg text-[10px] font-black">+ FRAME</button>
                             </div>
-                            <div class="text-slate-700 font-black italic text-xl">VS</div>
+                            <div class="text-slate-800 font-black italic">VS</div>
                             <div class="flex-1">
                                 <p id="t1_p2" class="text-[10px] font-black text-red-400 uppercase truncate">Player 2</p>
-                                <div id="t1_s2" class="text-6xl font-digital my-2 text-white">0</div>
+                                <div id="t1_s2" class="text-6xl font-digital my-2">0</div>
                                 <button onclick="upScore('t1_s2')" class="w-full bg-red-600/10 text-red-500 border border-red-600/30 py-1.5 rounded-lg text-[10px] font-black">+ FRAME</button>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button id="t1_btn_start" onclick="toggleTimer(1)" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-black text-[10px] uppercase">Mulai</button>
-                            <button onclick="saveMatchOnline(1)" class="flex-[2] bg-emerald-600 py-3 rounded-xl font-black text-[10px] uppercase">Simpan</button>
-                        </div>
+                        <button onclick="saveMatchOnline(1)" class="w-full bg-emerald-600 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-900/20">SIMPAN HASIL</button>
                     </div>
 
-                    <div id="card_t2" class="glass p-6 rounded-[2rem] transition-all border border-white/5">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-[10px] font-black bg-rose-600/20 text-rose-400 px-3 py-1 rounded-full uppercase tracking-widest">Table 02</span>
-                            <div id="t2_timer_display" class="text-xs font-digital text-yellow-500 font-bold">00:00:00</div>
+                    <div id="card_t2" class="glass p-6 rounded-[2rem] border border-white/5 transition-all">
+                        <div class="flex justify-between items-center mb-4 text-[10px] font-black">
+                            <span class="bg-rose-600 text-white px-3 py-1 rounded-full uppercase">Table 02</span>
+                            <div id="t2_timer_display" class="font-digital text-yellow-500">00:00:00</div>
                         </div>
                         <div class="flex justify-between items-center text-center gap-4 mb-8">
                             <div class="flex-1">
                                 <p id="t2_p1" class="text-[10px] font-black text-blue-400 uppercase truncate">Player 1</p>
-                                <div id="t2_s1" class="text-6xl font-digital my-2 text-white">0</div>
+                                <div id="t2_s1" class="text-6xl font-digital my-2">0</div>
                                 <button onclick="upScore('t2_s1')" class="w-full bg-blue-600/10 text-blue-500 border border-blue-600/30 py-1.5 rounded-lg text-[10px] font-black">+ FRAME</button>
                             </div>
-                            <div class="text-slate-700 font-black italic text-xl">VS</div>
+                            <div class="text-slate-800 font-black italic">VS</div>
                             <div class="flex-1">
                                 <p id="t2_p2" class="text-[10px] font-black text-red-400 uppercase truncate">Player 2</p>
-                                <div id="t2_s2" class="text-6xl font-digital my-2 text-white">0</div>
+                                <div id="t2_s2" class="text-6xl font-digital my-2">0</div>
                                 <button onclick="upScore('t2_s2')" class="w-full bg-red-600/10 text-red-500 border border-red-600/30 py-1.5 rounded-lg text-[10px] font-black">+ FRAME</button>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button id="t2_btn_start" onclick="toggleTimer(2)" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl font-black text-[10px] uppercase">Mulai</button>
-                            <button onclick="saveMatchOnline(2)" class="flex-[2] bg-emerald-600 py-3 rounded-xl font-black text-[10px] uppercase">Simpan</button>
-                        </div>
+                        <button onclick="saveMatchOnline(2)" class="w-full bg-emerald-600 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-900/20">SIMPAN HASIL</button>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center px-2">
-                        <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">🏆 LIVE Standings</h2>
-                        <button onclick="downloadKlasemen()" class="bg-indigo-600 px-4 py-2 rounded-xl text-[10px] font-black transition active:scale-95">📸 SHARE JPG</button>
+                    <div class="flex justify-between items-end px-2">
+                        <div>
+                            <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">🏆 Klasemen Akhir</h2>
+                            <p class="text-[7px] text-slate-500 uppercase">Urutan: Poin > Win > Lose (Min)</p>
+                        </div>
+                        <button onclick="downloadKlasemen()" class="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-[10px] font-black border border-white/10 transition">📸 SHARE</button>
                     </div>
-                    <div id="share-area" class="p-6 border border-white/10 shadow-2xl">
-                        <div class="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-                            <span class="text-2xl">🎱</span>
-                            <h1 class="text-lg font-black font-digital text-yellow-500">BILLIARD LIVE RANK</h1>
+                    
+                    <div id="share-area" class="p-6 border border-white/10 shadow-2xl rounded-3xl bg-[#05080f]">
+                        <div class="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🏆</span>
+                                <h1 class="text-lg font-black font-digital text-yellow-500 uppercase">Leaderboard</h1>
+                            </div>
+                            <div id="final-alert" class="hidden text-[8px] bg-yellow-500 text-black px-2 py-1 rounded font-black">TIE BREAKER REQUIRED!</div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-[11px]">
                                 <thead class="bg-white/5 text-slate-500 uppercase text-[8px]">
-                                    <tr><th class="p-4">Rank</th><th class="p-4">Nama</th><th class="p-4 text-center">P</th><th class="p-4 text-center">W</th><th class="p-4 text-center">L</th><th class="p-4 text-center text-yellow-500">PTS</th></tr>
+                                    <tr>
+                                        <th class="p-4">Pos</th>
+                                        <th class="p-4">Pemain</th>
+                                        <th class="p-4 text-center">P</th>
+                                        <th class="p-4 text-center">W</th>
+                                        <th class="p-4 text-center">L</th>
+                                        <th class="p-4 text-center text-yellow-500">PTS</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="rankTable" class="divide-y divide-white/5"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
-                <div class="glass rounded-3xl overflow-hidden border border-white/5">
-                    <div class="p-4 bg-white/5 border-b border-white/5 font-black text-blue-400 text-[10px] uppercase tracking-widest">Live Match History</div>
-                    <div id="historyList" class="p-4 space-y-3 max-h-60 overflow-y-auto text-[10px]"></div>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // DATA LOKAL (SYNC DENGAN FIREBASE)
         let local_players = [];
         let local_history = [];
-        let timers = { 1: null, 2: null };
-        let timerSeconds = { 1: 0, 2: 0 };
 
-        // MENDENGARKAN PERUBAHAN DATA DARI FIREBASE (REAL-TIME)
         db.ref('tournament_data').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -157,7 +158,6 @@
         function addPlayerOnline() {
             const name = document.getElementById('pName').value.trim().toUpperCase();
             if(!name || local_players.find(p => p.name === name)) return;
-            
             local_players.push({ name, p:0, w:0, l:0, pts:0 });
             db.ref('tournament_data/players').set(local_players);
             document.getElementById('pName').value = "";
@@ -169,46 +169,32 @@
         }
 
         function shuffleByTable(table) {
-            let busy = [];
             let other = table === 1 ? 2 : 1;
+            let busy = [];
             const op1 = document.getElementById(`t${other}_p1`).innerText;
             const op2 = document.getElementById(`t${other}_p2`).innerText;
             if(!op1.includes("PLAYER")) busy.push(op1, op2);
 
-            let pairs = [];
+            let potentialPairs = [];
             for(let i=0; i<local_players.length; i++){
                 for(let j=i+1; j<local_players.length; j++){
-                    let n1 = local_players[i].name; let n2 = local_players[j].name;
+                    let n1 = local_players[i].name, n2 = local_players[j].name;
                     if(busy.includes(n1) || busy.includes(n2)) continue;
-                    let played = local_history.some(h => (h.p1===n1 && h.p2===n2) || (h.p1===n2 && h.p2===n1));
-                    if(!played) pairs.push([local_players[i], local_players[j]]);
+                    let playedBefore = local_history.some(h => (h.p1===n1 && h.p2===n2) || (h.p1===n2 && h.p2===n1));
+                    if(!playedBefore) {
+                        potentialPairs.push({ pair: [local_players[i], local_players[j]], sum: local_players[i].p + local_players[j].p });
+                    }
                 }
             }
-            if(pairs.length === 0) return alert("Habis!");
-            pairs.sort(() => Math.random() - 0.5);
-            document.getElementById(`t${table}_p1`).innerText = pairs[0][0].name;
-            document.getElementById(`t${table}_p2`).innerText = pairs[0][1].name;
+
+            if(potentialPairs.length === 0) return alert("Semua sudah tanding!");
+            potentialPairs.sort((a,b) => a.sum - b.sum);
+            let chosen = potentialPairs[0].pair;
+
+            document.getElementById(`t${table}_p1`).innerText = chosen[0].name;
+            document.getElementById(`t${table}_p2`).innerText = chosen[1].name;
             document.getElementById(`t${table}_s1`).innerText = "0";
             document.getElementById(`t${table}_s2`).innerText = "0";
-        }
-
-        function toggleTimer(table) {
-            if(timers[table]) {
-                clearInterval(timers[table]); timers[table] = null;
-                document.getElementById(`t${table}_btn_start`).innerText = "Lanjut";
-            } else {
-                if(document.getElementById(`t${table}_p1`).innerText.includes("PLAYER")) return;
-                document.getElementById(`t${table}_btn_start`).innerText = "Stop";
-                timers[table] = setInterval(() => {
-                    timerSeconds[table]++;
-                    document.getElementById(`t${table}_timer_display`).innerText = formatTime(timerSeconds[table]);
-                }, 1000);
-            }
-        }
-
-        function formatTime(sec) {
-            let h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-            return [h,m,s].map(v => v<10?"0"+v:v).join(":");
         }
 
         function saveMatchOnline(table) {
@@ -216,72 +202,82 @@
             const p2n = document.getElementById(`t${table}_p2`).innerText;
             const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
             const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-            if(p1n.includes("PLAYER") || s1 === s2) return;
+            if(p1n.includes("PLAYER") || s1 === s2) return alert("Input tidak valid!");
 
             let p1 = local_players.find(p => p.name === p1n);
             let p2 = local_players.find(p => p.name === p2n);
 
             p1.p++; p2.p++;
-            if(s1 > s2) { p1.w++; p1.pts += 3; p2.l++; } 
-            else { p2.w++; p2.pts += 3; p1.l++; }
+            if(s1 > s2) { p1.w++; p1.pts += 1; p2.l++; } 
+            else { p2.w++; p2.pts += 1; p1.l++; }
 
-            local_history.unshift({ p1: p1n, p2: p2n, s1, s2, duration: document.getElementById(`t${table}_timer_display`).innerText, time: new Date().toLocaleTimeString() });
+            local_history.unshift({ p1: p1n, p2: p2n, s1, s2, time: new Date().toLocaleTimeString() });
+            db.ref('tournament_data').update({ players: local_players, history: local_history });
 
-            // KIRIM DATA KE FIREBASE (Semua orang akan langsung melihat update)
-            db.ref('tournament_data').update({
-                players: local_players,
-                history: local_history
-            });
-
-            // Reset Tampilan Meja Lokal
-            clearInterval(timers[table]); timers[table] = null; timerSeconds[table] = 0;
             document.getElementById(`t${table}_p1`).innerText = "PLAYER " + table;
             document.getElementById(`t${table}_p2`).innerText = "PLAYER " + table;
-            document.getElementById(`t${table}_s1`).innerText = "0"; document.getElementById(`t${table}_s2`).innerText = "0";
-            document.getElementById(`t${table}_timer_display`).innerText = "00:00:00";
+            document.getElementById(`t${table}_s1`).innerText = "0"; 
+            document.getElementById(`t${table}_s2`).innerText = "0";
         }
 
         function renderAll() {
-            const sorted = [...local_players].sort((a,b) => b.pts - a.pts || b.w - a.w);
-            document.getElementById('rankTable').innerHTML = sorted.map((p,i) => `
-                <tr class="border-b border-white/5">
-                    <td class="p-4 font-digital text-yellow-500">${i+1}</td>
-                    <td class="p-4 font-black uppercase">${p.name}</td>
-                    <td class="p-4 text-center font-bold text-slate-400">${p.p}</td>
-                    <td class="p-4 text-center font-bold text-emerald-400">${p.w}</td>
-                    <td class="p-4 text-center font-bold text-rose-500">${p.l}</td>
-                    <td class="p-4 text-center font-digital font-bold text-yellow-500">${p.pts}</td>
-                </tr>
-            `).join('');
+            // LOGIKA TIE BREAKER: 
+            // 1. Urutkan berdasarkan Poin (PTS) Descending
+            // 2. Jika PTS sama, urutkan berdasarkan Menang (W) Descending
+            // 3. Jika W sama, urutkan berdasarkan Kalah (L) Ascending (Kalah lebih dikit lebih tinggi)
+            const sorted = [...local_players].sort((a,b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.w !== a.w) return b.w - a.w;
+                return a.l - b.l;
+            });
+
+            // Deteksi jika Peringkat 1 & 2 atau Terakhir 1 & 2 benar-benar identik (Tie Mutlak)
+            let isTieTop = sorted.length >= 2 && (sorted[0].pts === sorted[1].pts && sorted[0].w === sorted[1].w && sorted[0].l === sorted[1].l);
+            document.getElementById('final-alert').style.display = isTieTop ? 'block' : 'none';
+
+            document.getElementById('rankTable').innerHTML = sorted.map((p,i) => {
+                let rowClass = "";
+                let medal = i + 1;
+                if(i === 0) rowClass = "gold-row";
+                if(i === 1) rowClass = "silver-row";
+
+                return `
+                    <tr class="transition border-b border-white/5 ${rowClass}">
+                        <td class="p-4 font-digital font-bold ${i < 3 ? 'text-yellow-500' : 'text-slate-500'}">
+                            ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                        </td>
+                        <td class="p-4 font-black uppercase text-white">
+                            ${p.name}
+                            ${(i === 0 && isTieTop) ? '<span class="text-[7px] bg-red-600 ml-2 px-1 rounded">TIE</span>' : ''}
+                        </td>
+                        <td class="p-4 text-center font-bold text-slate-500">${p.p}</td>
+                        <td class="p-4 text-center font-bold text-emerald-400">${p.w}</td>
+                        <td class="p-4 text-center font-bold text-rose-500">${p.l}</td>
+                        <td class="p-4 text-center font-digital font-bold text-yellow-500 text-lg">${p.pts}</td>
+                    </tr>
+                `;
+            }).join('');
 
             document.getElementById('playerList').innerHTML = local_players.map(p => `
-                <div class="bg-slate-900 p-2 rounded-lg text-[10px] flex justify-between uppercase">
-                    <span>${p.name}</span><span>${p.pts} PTS</span>
-                </div>
-            `).join('');
-
-            document.getElementById('historyList').innerHTML = local_history.map(h => `
-                <div class="bg-black/40 p-3 rounded-xl border-l-2 border-indigo-500 flex justify-between text-[10px]">
-                    <div class="uppercase">
-                        <span class="font-bold">${h.p1} <span class="text-yellow-500 mx-1">${h.s1}-${h.s2}</span> ${h.p2}</span>
-                        <p class="opacity-40 mt-1">⏳ ${h.duration} | ${h.time}</p>
-                    </div>
+                <div class="bg-slate-900/50 p-2 rounded-lg text-[9px] flex justify-between uppercase border border-white/5">
+                    <span class="font-bold">${p.name}</span>
+                    <span class="text-slate-500">${p.p} Main</span>
                 </div>
             `).join('');
         }
 
         function downloadKlasemen() {
             const area = document.getElementById('share-area');
-            html2canvas(area, { backgroundColor: "#080c14", scale: 2 }).then(canvas => {
+            html2canvas(area, { backgroundColor: "#05080f", scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Klasemen_Live.jpg';
+                link.download = 'Final_Standings.jpg';
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
             });
         }
 
         function clearAllData() {
-            if(confirm("Hapus seluruh data online?")) db.ref('tournament_data').remove();
+            if(confirm("Hapus seluruh data turnamen online?")) db.ref('tournament_data').remove();
         }
     </script>
 </body>
