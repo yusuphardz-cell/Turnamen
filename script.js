@@ -288,3 +288,35 @@ socket.on('receive-data', (data) => {
     // Update tampilan UI website Anda di sini
     document.getElementById('notifikasi').innerText = "Ada data baru: " + data.pesan;
 });
+function addPlayerOnline() {
+    const nameInput = document.getElementById('pName');
+    const name = nameInput.value.trim().toUpperCase();
+    
+    // Validasi input kosong
+    if(!name) {
+        alert("Nama tidak boleh kosong!");
+        return;
+    }
+
+    // Cek duplikasi
+    if(local_players.find(p => p.name === name)) {
+        alert("Nama pemain sudah terdaftar!");
+        return;
+    }
+
+    // Tambah ke list lokal
+    const newPlayer = { name, p:0, w:0, l:0, pts:0 };
+    local_players.push(newPlayer);
+
+    // KIRIM KE FIREBASE dengan penanganan error
+    db.ref('tournament_data/players').set(local_players)
+        .then(() => {
+            nameInput.value = ""; // Reset input jika berhasil
+            console.log("Berhasil simpan ke Firebase");
+        })
+        .catch((error) => {
+            alert("Gagal simpan! Error: " + error.message);
+            console.error(error);
+        });
+}
+
