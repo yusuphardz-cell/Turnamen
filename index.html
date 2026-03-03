@@ -222,12 +222,7 @@
             let p2 = local_players.find(p => p.name === p2n);
 
             p1.p++; p2.p++;
-            if(s1 > s2) { p1.w++; p1.pts += 3; p2.l++; } 
-            else { p2.w++; p2.pts += 3; p1.l++; }
-
-            p1.p++; p2.p++;
-            // MODIFIKASI: MENANG DAPAT 1 POIN
-            if(s1 > s2) { p1.w++; p1.pts += 1; p2.l++; }
+            if(s1 > s2) { p1.w++; p1.pts += 1; p2.l++; } 
             else { p2.w++; p2.pts += 1; p1.l++; }
 
             local_history.unshift({ p1: p1n, p2: p2n, s1, s2, duration: document.getElementById(`t${table}_timer_display`).innerText, time: new Date().toLocaleTimeString() });
