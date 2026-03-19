@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billiard Pro - Smart Manager</title>
+    <title>Billiard Pro - Ultimate Tournament Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -16,7 +16,9 @@
         .font-digital { font-family: 'Orbitron', sans-serif; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .active-table { border: 2px solid #eab308 !important; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 lg:p-6">
@@ -25,100 +27,129 @@
         <div class="glass p-6 rounded-3xl w-full max-w-md border border-white/10">
             <h3 class="font-black text-yellow-500 mb-4 uppercase tracking-widest text-center">Pilih Pemain Manual</h3>
             <div id="modalPlayerList" class="grid grid-cols-1 gap-2 max-h-80 overflow-y-auto pr-2"></div>
-            <button onclick="closeModal()" class="w-full mt-6 py-3 rounded-xl bg-white/5 font-bold uppercase text-[10px]">Batal / Tutup</button>
+            <button onclick="closeModal()" class="w-full mt-6 py-3 rounded-xl bg-white/5 font-bold uppercase text-[10px] border border-white/5">Batal</button>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal p-4">
+        <div class="glass p-6 rounded-3xl w-full max-w-md border border-white/10">
+            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                <h3 id="detailPlayerName" class="font-black text-yellow-500 uppercase tracking-widest text-lg">Nama Pemain</h3>
+                <span id="detailPlayerPts" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-[10px] font-bold">0 PTS</span>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <p class="text-[9px] font-black text-emerald-400 uppercase mb-3 tracking-widest">✅ Lawan Yang Sudah Dihadapi</p>
+                    <div id="playedList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-rose-400 uppercase mb-3 tracking-widest">⏳ Calon Lawan Berikutnya</p>
+                    <div id="unplayedList" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+            <button onclick="closeDetailModal()" class="w-full mt-8 py-4 rounded-xl bg-white/5 font-black uppercase text-[10px] border border-white/10 transition hover:bg-white/10">Tutup</button>
         </div>
     </div>
 
     <div class="max-w-7xl mx-auto space-y-6">
-        <div class="flex justify-between items-center glass p-5 rounded-2xl">
+        <div class="flex justify-between items-center glass p-5 rounded-2xl border border-white/5">
             <div>
-                <h1 class="text-xl font-black font-digital text-yellow-500 tracking-tighter uppercase">🎱 Pro Tournament</h1>
-                <p class="text-[8px] text-slate-500 tracking-[0.3em] font-bold uppercase">Smart Random & Fair Play System</p>
+                <h1 class="text-xl font-black font-digital text-yellow-500 tracking-tighter uppercase">🎱 Tournament Manager</h1>
+                <p class="text-[8px] text-slate-500 tracking-[0.4em] font-bold uppercase">Pro Edition v3.0</p>
             </div>
-            <button onclick="clearAllData()" class="text-[10px] bg-rose-600/20 text-rose-500 border border-rose-500/30 px-4 py-2 rounded-full font-black uppercase">Reset Data</button>
+            <button onclick="clearAllData()" class="text-[10px] bg-rose-600/20 text-rose-500 border border-rose-500/30 px-5 py-2.5 rounded-full font-black uppercase transition hover:bg-rose-600 hover:text-white">Reset Liga</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-3 space-y-4">
-                <div class="glass p-5 rounded-2xl">
-                    <p class="text-[10px] font-black text-yellow-500 uppercase mb-3 tracking-widest text-center">Registrasi Peserta</p>
-                    <input type="text" id="pName" placeholder="Nama..." class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl mb-3 outline-none focus:border-yellow-500 text-sm font-bold">
-                    <button onclick="addPlayerOnline()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-xl transition active:scale-95 shadow-lg shadow-yellow-500/20">DAFTARKAN</button>
+                <div class="glass p-5 rounded-2xl border border-white/5">
+                    <p class="text-[9px] font-black text-yellow-500 uppercase mb-4 tracking-widest text-center">Registrasi</p>
+                    <input type="text" id="pName" placeholder="Nama Pemain..." class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl mb-3 outline-none focus:border-yellow-500 text-sm font-bold uppercase">
+                    <button onclick="addPlayerOnline()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl transition active:scale-95 shadow-lg shadow-yellow-500/20 uppercase text-xs">Daftarkan</button>
                 </div>
                 
                 <div class="space-y-3">
                     <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl text-center">
-                        <p class="text-[9px] font-black text-blue-400 mb-3 uppercase">Meja 1</p>
+                        <p class="text-[9px] font-black text-blue-400 mb-3 uppercase tracking-widest">Kontrol Meja 1</p>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="shuffleByTable(1)" class="bg-blue-600 py-2 rounded-lg font-black text-[9px] uppercase">🎲 Acak</button>
-                            <button onclick="openManualSelect(1)" class="bg-white/10 py-2 rounded-lg font-black text-[9px] uppercase border border-white/5">👤 Manual</button>
+                            <button onclick="shuffleByTable(1)" class="bg-blue-600 py-3 rounded-xl font-black text-[9px] uppercase shadow-lg shadow-blue-900/20">🎲 Acak</button>
+                            <button onclick="openManualSelect(1)" class="bg-white/5 py-3 rounded-xl font-black text-[9px] uppercase border border-white/5">👤 Pilih</button>
                         </div>
                     </div>
                     <div class="bg-rose-600/10 border border-rose-500/20 p-4 rounded-2xl text-center">
-                        <p class="text-[9px] font-black text-rose-400 mb-3 uppercase">Meja 2</p>
+                        <p class="text-[9px] font-black text-rose-400 mb-3 uppercase tracking-widest">Kontrol Meja 2</p>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="shuffleByTable(2)" class="bg-rose-600 py-2 rounded-lg font-black text-[9px] uppercase">🎲 Acak</button>
-                            <button onclick="openManualSelect(2)" class="bg-white/10 py-2 rounded-lg font-black text-[9px] uppercase border border-white/5">👤 Manual</button>
+                            <button onclick="shuffleByTable(2)" class="bg-rose-600 py-3 rounded-xl font-black text-[9px] uppercase shadow-lg shadow-rose-900/20">🎲 Acak</button>
+                            <button onclick="openManualSelect(2)" class="bg-white/5 py-3 rounded-xl font-black text-[9px] uppercase border border-white/5">👤 Pilih</button>
                         </div>
                     </div>
                 </div>
-                <div id="playerList" class="space-y-1 max-h-40 overflow-y-auto pr-2"></div>
+                <div id="playerList" class="space-y-1.5 max-h-40 overflow-y-auto pr-2"></div>
             </div>
 
             <div class="lg:col-span-9 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div id="card_t1" class="glass p-6 rounded-[2rem] border border-white/5">
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-[10px] font-black bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full uppercase">Table 01</span>
-                            <div class="text-xs font-digital text-yellow-500" id="t1_timer">LIVE</div>
+                    <div id="card_t1" class="glass p-8 rounded-[2.5rem] border border-white/5 transition-all">
+                        <div class="flex justify-between items-center mb-8">
+                            <span class="text-[10px] font-black bg-blue-600 text-white px-4 py-1 rounded-full uppercase">Table 01</span>
+                            <div class="text-[10px] font-digital text-yellow-500 animate-pulse">MATCH LIVE</div>
                         </div>
-                        <div class="flex justify-between items-center text-center gap-2 mb-8">
+                        <div class="flex justify-between items-center text-center gap-2 mb-10">
                             <div class="flex-1">
-                                <p id="t1_p1" class="text-[10px] font-black text-blue-400 uppercase truncate">Player 1</p>
-                                <div id="t1_s1" class="text-6xl font-digital my-2 text-white">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t1_s1', -1)" class="flex-1 bg-white/5 py-1 rounded">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-[2] bg-blue-600 py-1 rounded">+</button></div>
+                                <p id="t1_p1" class="text-[11px] font-black text-blue-400 uppercase truncate mb-4">Player 1</p>
+                                <div id="t1_s1" class="text-7xl font-digital text-white mb-6">0</div>
+                                <div class="flex gap-2"><button onclick="adjustScore('t1_s1', -1)" class="flex-1 bg-white/5 py-2 rounded-lg border border-white/5">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-[2] bg-blue-600 py-2 rounded-lg font-black">+</button></div>
                             </div>
-                            <div class="text-slate-800 font-black italic">VS</div>
+                            <div class="text-slate-800 font-black italic text-xl px-4">VS</div>
                             <div class="flex-1">
-                                <p id="t1_p2" class="text-[10px] font-black text-red-400 uppercase truncate">Player 2</p>
-                                <div id="t1_s2" class="text-6xl font-digital my-2 text-white">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t1_s2', -1)" class="flex-1 bg-white/5 py-1 rounded">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-[2] bg-red-600 py-1 rounded">+</button></div>
+                                <p id="t1_p2" class="text-[11px] font-black text-red-400 uppercase truncate mb-4">Player 2</p>
+                                <div id="t1_s2" class="text-7xl font-digital text-white mb-6">0</div>
+                                <div class="flex gap-2"><button onclick="adjustScore('t1_s2', -1)" class="flex-1 bg-white/5 py-2 rounded-lg border border-white/5">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-[2] bg-red-600 py-2 rounded-lg font-black">+</button></div>
                             </div>
                         </div>
-                        <button onclick="saveMatchOnline(1)" class="w-full bg-emerald-600 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-900/20">Simpan Pertandingan</button>
+                        <button onclick="saveMatchOnline(1)" class="w-full bg-emerald-600 py-5 rounded-2xl font-black text-[11px] uppercase shadow-xl shadow-emerald-900/20 transition active:scale-95">Simpan Hasil Pertandingan</button>
                     </div>
 
-                    <div id="card_t2" class="glass p-6 rounded-[2rem] border border-white/5">
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-[10px] font-black bg-rose-600/20 text-rose-400 px-3 py-1 rounded-full uppercase">Table 02</span>
-                            <div class="text-xs font-digital text-yellow-500" id="t2_timer">LIVE</div>
+                    <div id="card_t2" class="glass p-8 rounded-[2.5rem] border border-white/5 transition-all">
+                        <div class="flex justify-between items-center mb-8">
+                            <span class="text-[10px] font-black bg-rose-600 text-white px-4 py-1 rounded-full uppercase">Table 02</span>
+                            <div class="text-[10px] font-digital text-yellow-500 animate-pulse">MATCH LIVE</div>
                         </div>
-                        <div class="flex justify-between items-center text-center gap-2 mb-8">
+                        <div class="flex justify-between items-center text-center gap-2 mb-10">
                             <div class="flex-1">
-                                <p id="t2_p1" class="text-[10px] font-black text-blue-400 uppercase truncate">Player 1</p>
-                                <div id="t2_s1" class="text-6xl font-digital my-2 text-white">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t2_s1', -1)" class="flex-1 bg-white/5 py-1 rounded">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-[2] bg-blue-600 py-1 rounded">+</button></div>
+                                <p id="t2_p1" class="text-[11px] font-black text-blue-400 uppercase truncate mb-4">Player 1</p>
+                                <div id="t2_s1" class="text-7xl font-digital text-white mb-6">0</div>
+                                <div class="flex gap-2"><button onclick="adjustScore('t2_s1', -1)" class="flex-1 bg-white/5 py-2 rounded-lg border border-white/5">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-[2] bg-blue-600 py-2 rounded-lg font-black">+</button></div>
                             </div>
-                            <div class="text-slate-800 font-black italic">VS</div>
+                            <div class="text-slate-800 font-black italic text-xl px-4">VS</div>
                             <div class="flex-1">
-                                <p id="t2_p2" class="text-[10px] font-black text-red-400 uppercase truncate">Player 2</p>
-                                <div id="t2_s2" class="text-6xl font-digital my-2 text-white">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t2_s2', -1)" class="flex-1 bg-white/5 py-1 rounded">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-[2] bg-red-600 py-1 rounded">+</button></div>
+                                <p id="t2_p2" class="text-[11px] font-black text-red-400 uppercase truncate mb-4">Player 2</p>
+                                <div id="t2_s2" class="text-7xl font-digital text-white mb-6">0</div>
+                                <div class="flex gap-2"><button onclick="adjustScore('t2_s2', -1)" class="flex-1 bg-white/5 py-2 rounded-lg border border-white/5">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-[2] bg-red-600 py-2 rounded-lg font-black">+</button></div>
                             </div>
                         </div>
-                        <button onclick="saveMatchOnline(2)" class="w-full bg-emerald-600 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-900/20">Simpan Pertandingan</button>
+                        <button onclick="saveMatchOnline(2)" class="w-full bg-emerald-600 py-5 rounded-2xl font-black text-[11px] uppercase shadow-xl shadow-emerald-900/20 transition active:scale-95">Simpan Hasil Pertandingan</button>
                     </div>
                 </div>
 
-                <div id="share-area" class="p-6 glass rounded-3xl border border-white/10 shadow-2xl">
-                    <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                        <h2 class="text-xs font-black text-yellow-500 uppercase tracking-widest">🏆 Leaderboard (1 Poin/Win)</h2>
-                        <button onclick="downloadKlasemen()" class="text-[8px] bg-white/5 px-4 py-2 rounded-full border border-white/10 uppercase font-black">Share JPG</button>
+                <div id="share-area" class="p-8 glass rounded-[2.5rem] border border-white/10 shadow-2xl">
+                    <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-6">
+                        <div>
+                            <h2 class="text-sm font-black text-yellow-500 uppercase tracking-widest">🏆 Leaderboard Liga</h2>
+                            <p class="text-[8px] text-slate-500 uppercase mt-1">Klik nama untuk statistik detail</p>
+                        </div>
+                        <button onclick="downloadKlasemen()" class="text-[9px] bg-white/10 hover:bg-white/20 px-5 py-2 rounded-full border border-white/10 uppercase font-black transition">Download Klasemen</button>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-[11px]">
-                            <thead class="text-slate-500 uppercase text-[8px]">
-                                <tr><th class="p-4">Rank</th><th class="p-4">Nama</th><th class="p-4 text-center">P</th><th class="p-4 text-center">W</th><th class="p-4 text-center text-yellow-500">PTS</th></tr>
+                        <table class="w-full text-left text-[12px]">
+                            <thead class="text-slate-500 uppercase text-[9px] font-black tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th class="p-4">Rank</th>
+                                    <th class="p-4">Nama Peserta</th>
+                                    <th class="p-4 text-center">P</th>
+                                    <th class="p-4 text-center">W</th>
+                                    <th class="p-4 text-center text-yellow-500">PTS</th>
+                                </tr>
                             </thead>
                             <tbody id="rankTable" class="divide-y divide-white/5"></tbody>
                         </table>
@@ -126,16 +157,23 @@
                 </div>
 
                 <div class="glass rounded-3xl overflow-hidden border border-white/5">
-                    <div class="p-4 bg-white/5 border-b border-white/5 font-black text-blue-400 text-[9px] uppercase tracking-widest">Riwayat & Koreksi</div>
-                    <div id="historyList" class="p-4 space-y-2 max-h-60 overflow-y-auto"></div>
+                    <div class="p-4 bg-white/5 border-b border-white/5 font-black text-blue-400 text-[10px] uppercase tracking-widest flex justify-between">
+                        <span>Riwayat Pertandingan Terakhir</span>
+                        <span class="text-slate-600">Bisa Dihapus/Koreksi</span>
+                    </div>
+                    <div id="historyList" class="p-5 space-y-3 max-h-72 overflow-y-auto"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. GANTI INI DENGAN URL FIREBASE ANDA
-        const firebaseConfig = { databaseURL: "https://appturnamen-51b2e-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        // ==========================================
+        // 1. CONFIGURATION (GANTI URL FIREBASE ANDA)
+        // ==========================================
+        const firebaseConfig = { 
+            databaseURL: "https://appturnamen-51b2e-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -144,7 +182,7 @@
         let currentTargetTable = 1;
         let selectedP1 = null;
 
-        // Sync Data
+        // 2. REALTIME SYNC
         db.ref('tournament_data').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -154,7 +192,7 @@
             }
         });
 
-        // Add Player
+        // 3. REGISTRATION
         function addPlayerOnline() {
             const input = document.getElementById('pName');
             const name = input.value.trim().toUpperCase();
@@ -170,14 +208,14 @@
             el.innerText = score < 0 ? 0 : score;
         }
 
-        // --- SISTEM ACAK CERDAS (ANTI-URUTAN & ANTI-PEMAIN SEBELUMNYA) ---
+        // 4. SMART RANDOM SYSTEM (Fisher-Yates + Cooldown)
         function shuffleByTable(table) {
             let other = table === 1 ? 2 : 1;
             let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
             let lastMatch = local_history.length > 0 ? local_history[0] : null;
             let recentlyPlayed = lastMatch ? [lastMatch.p1, lastMatch.p2] : [];
 
-            let allPairs = [];
+            let pairs = [];
             for(let i=0; i<local_players.length; i++) {
                 for(let j=i+1; j<local_players.length; j++) {
                     let n1 = local_players[i].name, n2 = local_players[j].name;
@@ -185,23 +223,22 @@
                     let played = local_history.some(h => (h.p1===n1 && h.p2===n2) || (h.p1===n2 && h.p2===n1));
                     if(played) continue;
 
-                    allPairs.push({
+                    pairs.push({
                         pair: [local_players[i], local_players[j]],
                         isFresh: !recentlyPlayed.includes(n1) && !recentlyPlayed.includes(n2)
                     });
                 }
             }
 
-            if(allPairs.length === 0) return alert("Semua pasangan sudah bertanding!");
+            if(pairs.length === 0) return alert("Semua kombinasi sudah bertanding!");
 
-            // Fisher-Yates Shuffle (True Random)
-            for (let i = allPairs.length - 1; i > 0; i--) {
+            // Fisher-Yates Shuffle
+            for (let i = pairs.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [allPairs[i], allPairs[j]] = [allPairs[j], allPairs[i]];
+                [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
             }
 
-            // Cari yang istirahat dulu, jika sisa sedikit baru panggil yang baru main
-            let chosen = (allPairs.find(p => p.isFresh) || allPairs[0]).pair;
+            let chosen = (pairs.find(p => p.isFresh) || pairs[0]).pair;
             
             document.getElementById(`t${table}_p1`).innerText = chosen[0].name;
             document.getElementById(`t${table}_p2`).innerText = chosen[1].name;
@@ -211,7 +248,7 @@
             setTimeout(() => document.getElementById(`card_t${table}`).classList.remove('active-table'), 1500);
         }
 
-        // --- SISTEM PILIH MANUAL ---
+        // 5. MANUAL SELECTION
         function openManualSelect(table) {
             currentTargetTable = table;
             selectedP1 = null;
@@ -225,9 +262,9 @@
             let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
 
             list.innerHTML = local_players.filter(p => !busy.includes(p.name)).map(p => `
-                <button onclick="selectPlayer('${p.name}')" class="w-full p-4 bg-white/5 rounded-xl text-left hover:bg-yellow-500 hover:text-black transition flex justify-between items-center mb-1">
+                <button onclick="selectPlayer('${p.name}')" class="w-full p-4 bg-white/5 rounded-2xl text-left hover:bg-yellow-500 hover:text-black transition flex justify-between items-center mb-1 border border-white/5">
                     <span class="font-black uppercase">${p.name}</span>
-                    <span class="text-[8px] opacity-60">PTS: ${p.pts}</span>
+                    <span class="text-[9px] opacity-60">P: ${p.p} | PTS: ${p.pts}</span>
                 </button>
             `).join('');
         }
@@ -235,10 +272,9 @@
         function selectPlayer(name) {
             if(!selectedP1) {
                 selectedP1 = name;
-                document.querySelector('#playerModal h3').innerText = "Lawan untuk " + name + "?";
+                document.querySelector('#playerModal h3').innerText = "PILIH LAWAN UNTUK " + name;
                 renderModalPlayers();
-                const btns = document.querySelectorAll('#modalPlayerList button');
-                btns.forEach(b => { if(b.innerText.includes(name)) b.style.display = 'none'; });
+                document.querySelectorAll('#modalPlayerList button').forEach(b => { if(b.innerText.includes(name)) b.style.display = 'none'; });
             } else {
                 document.getElementById(`t${currentTargetTable}_p1`).innerText = selectedP1;
                 document.getElementById(`t${currentTargetTable}_p2`).innerText = name;
@@ -250,16 +286,16 @@
 
         function closeModal() {
             document.getElementById('playerModal').style.display = 'none';
-            document.querySelector('#playerModal h3').innerText = "Pilih Pemain Manual";
+            document.querySelector('#playerModal h3').innerText = "PILIH PEMAIN MANUAL";
         }
 
-        // --- SAVE & DELETE (KOREKSI) ---
+        // 6. SAVE & KOREKSI
         function saveMatchOnline(table) {
             const p1n = document.getElementById(`t${table}_p1`).innerText;
             const p2n = document.getElementById(`t${table}_p2`).innerText;
             const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
             const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-            if(p1n.includes("PLAYER") || s1 === s2) return alert("Cek skor/pemain!");
+            if(p1n.includes("PLAYER") || s1 === s2) return alert("Skor Seri atau Pemain Kosong!");
 
             let p1 = local_players.find(p => p.name === p1n);
             let p2 = local_players.find(p => p.name === p2n);
@@ -268,17 +304,16 @@
             if(s1 > s2) { p1.w++; p1.pts += 1; p2.l++; } 
             else { p2.w++; p2.pts += 1; p1.l++; }
 
-            local_history.unshift({ id: Date.now(), p1: p1n, p2: p2n, s1, s2 });
+            local_history.unshift({ id: Date.now(), p1: p1n, p2: p2n, s1, s2, time: new Date().toLocaleTimeString() });
             db.ref('tournament_data').update({ players: local_players, history: local_history });
 
-            // Reset UI Meja
             document.getElementById(`t${table}_p1`).innerText = "PLAYER " + table;
             document.getElementById(`t${table}_p2`).innerText = "PLAYER " + table;
             document.getElementById(`t${table}_s1`).innerText = "0"; document.getElementById(`t${table}_s2`).innerText = "0";
         }
 
         function deleteMatch(id) {
-            if(!confirm("Hapus & Kembalikan Poin?")) return;
+            if(!confirm("Hapus pertandingan ini? Poin akan otomatis dikembalikan.")) return;
             const match = local_history.find(h => h.id === id);
             let p1 = local_players.find(p => p.name === match.p1);
             let p2 = local_players.find(p => p.name === match.p2);
@@ -291,46 +326,86 @@
             db.ref('tournament_data').update({ players: local_players, history: newHist });
         }
 
+        // 7. RENDER & DETAIL PLAYER
         function renderAll() {
             const sorted = [...local_players].sort((a,b) => b.pts - a.pts || b.w - a.w || a.l - b.l);
             document.getElementById('rankTable').innerHTML = sorted.map((p,i) => `
-                <tr class="border-b border-white/5">
+                <tr class="border-b border-white/5 hover:bg-white/5 transition cursor-pointer" onclick="showPlayerDetail('${p.name}')">
                     <td class="p-4 font-digital ${i<3?'text-yellow-500':'text-slate-600'}">${i+1}</td>
-                    <td class="p-4 font-black uppercase text-white">${p.name}</td>
-                    <td class="p-4 text-center text-slate-500">${p.p}</td>
+                    <td class="p-4">
+                        <div class="font-black uppercase text-white">${p.name}</div>
+                        <div class="text-[7px] text-slate-500 tracking-[0.2em] uppercase mt-0.5">Lihat Detail ➔</div>
+                    </td>
+                    <td class="p-4 text-center text-slate-500 font-bold">${p.p}</td>
                     <td class="p-4 text-center text-emerald-500 font-bold">${p.w}</td>
                     <td class="p-4 text-center font-digital text-yellow-500 text-lg">${p.pts}</td>
                 </tr>
             `).join('');
 
             document.getElementById('playerList').innerHTML = local_players.map(p => `
-                <div class="bg-slate-900/40 p-2 rounded-lg text-[9px] flex justify-between border border-white/5 uppercase">
-                    <span>${p.name}</span><span class="text-yellow-500">${p.p} Main</span>
+                <div class="bg-slate-900/40 p-3 rounded-xl text-[9px] flex justify-between border border-white/5 uppercase">
+                    <span class="font-bold">${p.name}</span><span class="text-slate-500">${p.p} Match</span>
                 </div>
             `).join('');
 
             document.getElementById('historyList').innerHTML = local_history.map(h => `
-                <div class="bg-black/20 p-3 rounded-xl border border-white/5 flex justify-between items-center group">
-                    <div class="text-[10px] uppercase font-bold">
-                        <span class="${h.s1 > h.s2 ? 'text-yellow-500' : ''}">${h.p1}</span>
-                        <span class="mx-2 text-slate-700">${h.s1}-${h.s2}</span>
-                        <span class="${h.s2 > h.s1 ? 'text-yellow-500' : ''}">${h.p2}</span>
+                <div class="bg-black/40 p-4 rounded-2xl border border-white/5 flex justify-between items-center group">
+                    <div class="text-[10px] uppercase font-bold tracking-tighter">
+                        <span class="${h.s1 > h.s2 ? 'text-yellow-500' : 'text-slate-400'}">${h.p1}</span>
+                        <span class="mx-3 text-slate-700 font-digital text-xs">${h.s1}-${h.s2}</span>
+                        <span class="${h.s2 > h.s1 ? 'text-yellow-500' : 'text-slate-400'}">${h.p2}</span>
                     </div>
-                    <button onclick="deleteMatch(${h.id})" class="text-[8px] bg-rose-600/20 text-rose-500 px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition font-black">HAPUS</button>
+                    <button onclick="deleteMatch(${h.id})" class="text-[8px] bg-rose-600/20 text-rose-500 px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition font-black">HAPUS</button>
                 </div>
             `).join('');
         }
 
+        function showPlayerDetail(playerName) {
+            const player = local_players.find(p => p.name === playerName);
+            if(!player) return;
+            document.getElementById('detailPlayerName').innerText = player.name;
+            document.getElementById('detailPlayerPts').innerText = player.pts + " PTS";
+
+            let playedWith = [];
+            local_history.forEach(h => {
+                if(h.p1 === playerName) playedWith.push({ opp: h.p2, sc: `${h.s1}-${h.s2}`, win: h.s1 > h.s2 });
+                if(h.p2 === playerName) playedWith.push({ opp: h.p1, sc: `${h.s2}-${h.s1}`, win: h.s2 > h.s1 });
+            });
+
+            document.getElementById('playedList').innerHTML = playedWith.length > 0 ? playedWith.map(m => `
+                <div class="flex justify-between items-center bg-white/5 p-3.5 rounded-2xl border border-white/5">
+                    <span class="text-[10px] font-black uppercase text-slate-300">${m.opp}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[11px] font-digital ${m.win ? 'text-emerald-400' : 'text-rose-500'}">${m.sc}</span>
+                        <span>${m.win ? '🏆' : '❌'}</span>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-[10px] text-slate-600 italic">Belum bertanding.</p>';
+
+            const playedNames = playedWith.map(m => m.opp);
+            const unplayed = local_players.filter(p => p.name !== playerName && !playedNames.includes(p.name));
+            document.getElementById('unplayedList').innerHTML = unplayed.length > 0 ? unplayed.map(u => `
+                <div class="bg-white/5 p-3 rounded-xl border border-dashed border-white/10 text-center">
+                    <span class="text-[9px] font-bold uppercase text-slate-500">${u.name}</span>
+                </div>
+            `).join('') : '<p class="col-span-2 text-[10px] text-slate-600 italic">Semua sudah dilawan.</p>';
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+        // 8. EXTRAS
         function downloadKlasemen() {
             html2canvas(document.getElementById('share-area'), { backgroundColor: "#05080f", scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Klasemen_Billiard.jpg';
+                link.download = 'Standings_BJKI.jpg';
                 link.href = canvas.toDataURL();
                 link.click();
             });
         }
 
-        function clearAllData() { if(confirm("Hapus seluruh data online?")) db.ref('tournament_data').remove(); }
+        function clearAllData() { if(confirm("HAPUS SELURUH DATA LIGA? Tindakan ini tidak bisa dibatalkan.")) db.ref('tournament_data').remove(); }
     </script>
 </body>
 </html>
