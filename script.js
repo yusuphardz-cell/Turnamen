@@ -1,29 +1,34 @@
 function shuffleByTable(table) {
     let other = table === 1 ? 2 : 1;
+    
+    // 1. Ambil nama yang sedang "sibuk" di meja sebelah
     let busy = [
         document.getElementById(`t${other}_p1`).innerText, 
         document.getElementById(`t${other}_p2`).innerText
     ];
     
-    // Ambil riwayat pertandingan terakhir (untuk syarat istirahat)
+    // 2. Ambil nama yang baru saja SELESAI bertanding (dari riwayat terakhir)
+    // Ini adalah kunci agar mereka tidak muncul lagi setelah klik "Simpan"
     let lastMatch = local_history.length > 0 ? local_history[0] : null;
     let recentlyPlayed = lastMatch ? [lastMatch.p1, lastMatch.p2] : [];
 
-    // 1. Kumpulkan semua pasangan yang BELUM PERNAH bertemu
+    // 3. Kumpulkan semua kemungkinan pasangan yang BELUM PERNAH bertemu
     let allPossiblePairs = [];
     for(let i = 0; i < local_players.length; i++) {
         for(let j = i + 1; j < local_players.length; j++) {
             let n1 = local_players[i].name; 
             let n2 = local_players[j].name;
             
-            // Skip jika sedang main di meja sebelah
+            // Filter A: Bukan pemain yang sedang di meja sebelah
             if(busy.includes(n1) || busy.includes(n2)) continue;
 
-            // Skip jika sudah pernah tanding (menghindari tanding ulang)
-            let alreadyPlayed = local_history.some(h => (h.p1 === n1 && h.p2 === n2) || (h.p1 === n2 && h.p2 === n1));
+            // Filter B: Bukan pasangan yang sudah pernah bertemu (menghindari tanding ulang)
+            let alreadyPlayed = local_history.some(h => 
+                (h.p1 === n1 && h.p2 === n2) || (h.p1 === n2 && h.p2 === n1)
+            );
             if(alreadyPlayed) continue;
 
-            // Cek apakah mereka "Fresh" (tidak main di match sebelumnya)
+            // Filter C: Deteksi status "Fresh" (Pemain yang sudah istirahat)
             let isFresh = !recentlyPlayed.includes(n1) && !recentlyPlayed.includes(n2);
             
             allPossiblePairs.push({
@@ -33,34 +38,37 @@ function shuffleByTable(table) {
         }
     }
 
-    if(allPossiblePairs.length === 0) return alert("Semua kombinasi pasangan sudah bertanding!");
+    if(allPossiblePairs.length === 0) {
+        alert("Semua kombinasi pasangan yang tersedia sudah pernah bertanding atau pemain tidak mencukupi!");
+        return;
+    }
 
-    // 2. KOCOK SEMUA PASANGAN (Fisher-Yates Shuffle)
-    // Ini membuat urutan daftar pemain tidak berpengaruh sama sekali
+    // 4. TRUE RANDOM SHUFFLE (Fisher-Yates)
+    // Menghancurkan urutan pendaftaran agar hasil benar-benar acak murni
     for (let i = allPossiblePairs.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [allPossiblePairs[i], allPossiblePairs[j]] = [allPossiblePairs[j], allPossiblePairs[i]];
     }
 
-    // 3. PRIORITAS: Cari yang 'Fresh' dulu dari hasil kocokan tadi
-    let chosenPair = null;
-    let freshPairs = allPossiblePairs.filter(p => p.isFresh);
+    // 5. SELEKSI AKHIR
+    // Kita prioritaskan pasangan yang keduanya "Fresh" (sudah istirahat minimal 1 match)
+    let finalSelection = allPossiblePairs.find(p => p.isFresh);
 
-    if (freshPairs.length > 0) {
-        // Ambil secara acak dari kumpulan yang fresh
-        chosenPair = freshPairs[Math.floor(Math.random() * freshPairs.length)].pair;
-    } else {
-        // Jika tidak ada yang fresh (semua pemain yang tersisa baru saja main), 
-        // ambil secara acak dari semua pasangan yang mungkin
-        chosenPair = allPossiblePairs[Math.floor(Math.random() * allPossiblePairs.length)].pair;
+    // Jika tidak ada yang benar-benar fresh (misal pemain tinggal sedikit), 
+    // ambil acak dari yang tersedia meskipun salah satunya baru main
+    if (!finalSelection) {
+        finalSelection = allPossiblePairs[0];
     }
 
-    // Terapkan ke Meja
-    document.getElementById(`t${table}_p1`).innerText = chosenPair[0].name;
-    document.getElementById(`t${table}_p2`).innerText = chosenPair[1].name;
+    // 6. UPDATE KE LAYAR
+    const chosen = finalSelection.pair;
+    document.getElementById(`t${table}_p1`).innerText = chosen[0];
+    document.getElementById(`t${table}_p2`).innerText = chosen[1];
     document.getElementById(`t${table}_s1`).innerText = "0";
     document.getElementById(`t${table}_s2`).innerText = "0";
-    
-    // Beri efek visual aktif
-    document.getElementById(`card_t${table}`).classList.add('active-table');
+
+    // Efek visual sukses
+    const card = document.getElementById(`card_t${table}`);
+    card.style.borderColor = "#eab308";
+    setTimeout(() => card.style.borderColor = "rgba(255,255,255,0.05)", 1000);
 }
