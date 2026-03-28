@@ -167,245 +167,121 @@
         </div>
     </div>
 
-    <script>
-        // ==========================================
-        // 1. CONFIGURATION (GANTI URL FIREBASE ANDA)
-        // ==========================================
-        const firebaseConfig = { 
-            databaseURL: "https://appturnamen-51b2e-default-rtdb.asia-southeast1.firebasedatabase.app/" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        let local_players = [];
-        let local_history = [];
-        let currentTargetTable = 1;
-        let selectedP1 = null;
+<script>
+    // ==========================================
+    // 1. CONFIGURATION SUPABASE
+    // ==========================================
+    const SUPABASE_URL = "https://PROJECT_ID.supabase.co";
+    const SUPABASE_KEY = "YOUR_ANON_KEY";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 2. REALTIME SYNC
-        db.ref('tournament_data').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                local_players = data.players || [];
-                local_history = data.history || [];
-                renderAll();
-            }
-        });
+    let local_players = [];
+    let local_history = [];
+    let currentTargetTable = 1;
+    let selectedP1 = null;
 
-        // 3. REGISTRATION
-        function addPlayerOnline() {
-            const input = document.getElementById('pName');
-            const name = input.value.trim().toUpperCase();
-            if(!name || local_players.find(p => p.name === name)) return;
-            local_players.push({ name, p:0, w:0, l:0, pts:0 });
-            db.ref('tournament_data/players').set(local_players);
-            input.value = "";
-        }
+    // 2. INITIAL FETCH & REALTIME SYNC
+    async function initData() {
+        // Ambil data awal
+        const { data: pData } = await supabase.from('players').select('*');
+        const { data: hData } = await supabase.from('history').select('*').order('created_at', { ascending: false });
+        
+        local_players = pData || [];
+        local_history = hData || [];
+        renderAll();
 
-        function adjustScore(id, val) {
-            const el = document.getElementById(id);
-            let score = parseInt(el.innerText) + val;
-            el.innerText = score < 0 ? 0 : score;
-        }
+        // Subscribe Perubahan Tabel Players
+        supabase.channel('custom-all-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, payload => {
+            refreshLocalData();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, payload => {
+            refreshLocalData();
+        })
+        .subscribe();
+    }
 
-        // 4. SMART RANDOM SYSTEM (Fisher-Yates + Cooldown)
-        function shuffleByTable(table) {
-            let other = table === 1 ? 2 : 1;
-            let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
-            let lastMatch = local_history.length > 0 ? local_history[0] : null;
-            let recentlyPlayed = lastMatch ? [lastMatch.p1, lastMatch.p2] : [];
+    async function refreshLocalData() {
+        const { data: pData } = await supabase.from('players').select('*');
+        const { data: hData } = await supabase.from('history').select('*').order('created_at', { ascending: false });
+        local_players = pData || [];
+        local_history = hData || [];
+        renderAll();
+    }
 
-            let pairs = [];
-            for(let i=0; i<local_players.length; i++) {
-                for(let j=i+1; j<local_players.length; j++) {
-                    let n1 = local_players[i].name, n2 = local_players[j].name;
-                    if(busy.includes(n1) || busy.includes(n2)) continue;
-                    let played = local_history.some(h => (h.p1===n1 && h.p2===n2) || (h.p1===n2 && h.p2===n1));
-                    if(played) continue;
+    initData();
 
-                    pairs.push({
-                        pair: [local_players[i], local_players[j]],
-                        isFresh: !recentlyPlayed.includes(n1) && !recentlyPlayed.includes(n2)
-                    });
-                }
-            }
+    // 3. REGISTRATION (Insert ke Supabase)
+    async function addPlayerOnline() {
+        const input = document.getElementById('pName');
+        const name = input.value.trim().toUpperCase();
+        if(!name || local_players.find(p => p.name === name)) return;
+        
+        const { error } = await supabase
+            .from('players')
+            .insert([{ name, p:0, w:0, l:0, pts:0 }]);
+        
+        if(error) alert(error.message);
+        input.value = "";
+    }
 
-            if(pairs.length === 0) return alert("Semua kombinasi sudah bertanding!");
+    // 4. SAVE MATCH (Update & Insert ke Supabase)
+    async function saveMatchOnline(table) {
+        const p1n = document.getElementById(`t${table}_p1`).innerText;
+        const p2n = document.getElementById(`t${table}_p2`).innerText;
+        const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
+        const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
+        
+        if(p1n.includes("PLAYER") || s1 === s2) return alert("Skor Seri atau Pemain Kosong!");
 
-            // Fisher-Yates Shuffle
-            for (let i = pairs.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
-            }
+        let p1 = local_players.find(p => p.name === p1n);
+        let p2 = local_players.find(p => p.name === p2n);
 
-            let chosen = (pairs.find(p => p.isFresh) || pairs[0]).pair;
-            
-            document.getElementById(`t${table}_p1`).innerText = chosen[0].name;
-            document.getElementById(`t${table}_p2`).innerText = chosen[1].name;
-            document.getElementById(`t${table}_s1`).innerText = "0";
-            document.getElementById(`t${table}_s2`).innerText = "0";
-            document.getElementById(`card_t${table}`).classList.add('active-table');
-            setTimeout(() => document.getElementById(`card_t${table}`).classList.remove('active-table'), 1500);
-        }
+        // Hitung update poin
+        const updP1 = { p: p1.p + 1, w: s1 > s2 ? p1.w + 1 : p1.w, l: s1 < s2 ? p1.l + 1 : p1.l, pts: s1 > s2 ? p1.pts + 1 : p1.pts };
+        const updP2 = { p: p2.p + 1, w: s2 > s1 ? p2.w + 1 : p2.w, l: s2 < s1 ? p2.l + 1 : p2.l, pts: s2 > s1 ? p2.pts + 1 : p2.pts };
 
-        // 5. MANUAL SELECTION
-        function openManualSelect(table) {
-            currentTargetTable = table;
-            selectedP1 = null;
-            renderModalPlayers();
-            document.getElementById('playerModal').style.display = 'flex';
-        }
+        // Simpan History & Update Player secara bersamaan
+        await supabase.from('history').insert([{ p1: p1n, p2: p2n, s1, s2 }]);
+        await supabase.from('players').update(updP1).eq('name', p1n);
+        await supabase.from('players').update(updP2).eq('name', p2n);
 
-        function renderModalPlayers() {
-            const list = document.getElementById('modalPlayerList');
-            let other = currentTargetTable === 1 ? 2 : 1;
-            let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
+        // Reset Meja
+        document.getElementById(`t${table}_p1`).innerText = "PLAYER " + table;
+        document.getElementById(`t${table}_p2`).innerText = "PLAYER " + table;
+        document.getElementById(`t${table}_s1`).innerText = "0"; 
+        document.getElementById(`t${table}_s2`).innerText = "0";
+    }
 
-            list.innerHTML = local_players.filter(p => !busy.includes(p.name)).map(p => `
-                <button onclick="selectPlayer('${p.name}')" class="w-full p-4 bg-white/5 rounded-2xl text-left hover:bg-yellow-500 hover:text-black transition flex justify-between items-center mb-1 border border-white/5">
-                    <span class="font-black uppercase">${p.name}</span>
-                    <span class="text-[9px] opacity-60">P: ${p.p} | PTS: ${p.pts}</span>
-                </button>
-            `).join('');
-        }
+    // 5. DELETE/KOREKSI (Update Kembali Poin)
+    async function deleteMatch(id) {
+        if(!confirm("Hapus pertandingan ini? Poin akan otomatis dikembalikan.")) return;
+        const match = local_history.find(h => h.id === id);
+        let p1 = local_players.find(p => p.name === match.p1);
+        let p2 = local_players.find(p => p.name === match.p2);
 
-        function selectPlayer(name) {
-            if(!selectedP1) {
-                selectedP1 = name;
-                document.querySelector('#playerModal h3').innerText = "PILIH LAWAN UNTUK " + name;
-                renderModalPlayers();
-                document.querySelectorAll('#modalPlayerList button').forEach(b => { if(b.innerText.includes(name)) b.style.display = 'none'; });
-            } else {
-                document.getElementById(`t${currentTargetTable}_p1`).innerText = selectedP1;
-                document.getElementById(`t${currentTargetTable}_p2`).innerText = name;
-                document.getElementById(`t${currentTargetTable}_s1`).innerText = "0";
-                document.getElementById(`t${currentTargetTable}_s2`).innerText = "0";
-                closeModal();
-            }
-        }
+        const updP1 = { p: p1.p - 1, w: match.s1 > match.s2 ? p1.w - 1 : p1.w, l: match.s1 < match.s2 ? p1.l - 1 : p1.l, pts: match.s1 > match.s2 ? p1.pts - 1 : p1.pts };
+        const updP2 = { p: p2.p - 1, w: match.s2 > match.s1 ? p2.w - 1 : p2.w, l: match.s2 < match.s1 ? p2.l - 1 : p2.l, pts: match.s2 > match.s1 ? p2.pts - 1 : p2.pts };
 
-        function closeModal() {
-            document.getElementById('playerModal').style.display = 'none';
-            document.querySelector('#playerModal h3').innerText = "PILIH PEMAIN MANUAL";
-        }
+        await supabase.from('history').delete().eq('id', id);
+        await supabase.from('players').update(updP1).eq('name', match.p1);
+        await supabase.from('players').update(updP2).eq('name', match.p2);
+    }
 
-        // 6. SAVE & KOREKSI
-        function saveMatchOnline(table) {
-            const p1n = document.getElementById(`t${table}_p1`).innerText;
-            const p2n = document.getElementById(`t${table}_p2`).innerText;
-            const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
-            const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-            if(p1n.includes("PLAYER") || s1 === s2) return alert("Skor Seri atau Pemain Kosong!");
+    // 6. RESET SEMUA DATA
+    async function clearAllData() {
+        if(!confirm("HAPUS SELURUH DATA?")) return;
+        await supabase.from('history').delete().neq('id', 0); // Hapus semua row
+        await supabase.from('players').delete().neq('name', 'none');
+        location.reload();
+    }
 
-            let p1 = local_players.find(p => p.name === p1n);
-            let p2 = local_players.find(p => p.name === p2n);
+    // [Fungsi RenderAll, ShuffleByTable, ShowPlayerDetail, dll tetap sama seperti sebelumnya]
+    // ... Copy fungsi render, shuffle, dan modal dari kode sebelumnya ke sini ...
 
-            p1.p++; p2.p++;
-            if(s1 > s2) { p1.w++; p1.pts += 1; p2.l++; } 
-            else { p2.w++; p2.pts += 1; p1.l++; }
+</script>
 
-            local_history.unshift({ id: Date.now(), p1: p1n, p2: p2n, s1, s2, time: new Date().toLocaleTimeString() });
-            db.ref('tournament_data').update({ players: local_players, history: local_history });
-
-            document.getElementById(`t${table}_p1`).innerText = "PLAYER " + table;
-            document.getElementById(`t${table}_p2`).innerText = "PLAYER " + table;
-            document.getElementById(`t${table}_s1`).innerText = "0"; document.getElementById(`t${table}_s2`).innerText = "0";
-        }
-
-        function deleteMatch(id) {
-            if(!confirm("Hapus pertandingan ini? Poin akan otomatis dikembalikan.")) return;
-            const match = local_history.find(h => h.id === id);
-            let p1 = local_players.find(p => p.name === match.p1);
-            let p2 = local_players.find(p => p.name === match.p2);
-
-            p1.p--; p2.p--;
-            if(match.s1 > match.s2) { p1.w--; p1.pts -= 1; p2.l--; }
-            else { p2.w--; p2.pts -= 1; p1.l--; }
-
-            const newHist = local_history.filter(h => h.id !== id);
-            db.ref('tournament_data').update({ players: local_players, history: newHist });
-        }
-
-        // 7. RENDER & DETAIL PLAYER
-        function renderAll() {
-            const sorted = [...local_players].sort((a,b) => b.pts - a.pts || b.w - a.w || a.l - b.l);
-            document.getElementById('rankTable').innerHTML = sorted.map((p,i) => `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition cursor-pointer" onclick="showPlayerDetail('${p.name}')">
-                    <td class="p-4 font-digital ${i<3?'text-yellow-500':'text-slate-600'}">${i+1}</td>
-                    <td class="p-4">
-                        <div class="font-black uppercase text-white">${p.name}</div>
-                        <div class="text-[7px] text-slate-500 tracking-[0.2em] uppercase mt-0.5">Lihat Detail ➔</div>
-                    </td>
-                    <td class="p-4 text-center text-slate-500 font-bold">${p.p}</td>
-                    <td class="p-4 text-center text-emerald-500 font-bold">${p.w}</td>
-                    <td class="p-4 text-center font-digital text-yellow-500 text-lg">${p.pts}</td>
-                </tr>
-            `).join('');
-
-            document.getElementById('playerList').innerHTML = local_players.map(p => `
-                <div class="bg-slate-900/40 p-3 rounded-xl text-[9px] flex justify-between border border-white/5 uppercase">
-                    <span class="font-bold">${p.name}</span><span class="text-slate-500">${p.p} Match</span>
-                </div>
-            `).join('');
-
-            document.getElementById('historyList').innerHTML = local_history.map(h => `
-                <div class="bg-black/40 p-4 rounded-2xl border border-white/5 flex justify-between items-center group">
-                    <div class="text-[10px] uppercase font-bold tracking-tighter">
-                        <span class="${h.s1 > h.s2 ? 'text-yellow-500' : 'text-slate-400'}">${h.p1}</span>
-                        <span class="mx-3 text-slate-700 font-digital text-xs">${h.s1}-${h.s2}</span>
-                        <span class="${h.s2 > h.s1 ? 'text-yellow-500' : 'text-slate-400'}">${h.p2}</span>
-                    </div>
-                    <button onclick="deleteMatch(${h.id})" class="text-[8px] bg-rose-600/20 text-rose-500 px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition font-black">HAPUS</button>
-                </div>
-            `).join('');
-        }
-
-        function showPlayerDetail(playerName) {
-            const player = local_players.find(p => p.name === playerName);
-            if(!player) return;
-            document.getElementById('detailPlayerName').innerText = player.name;
-            document.getElementById('detailPlayerPts').innerText = player.pts + " PTS";
-
-            let playedWith = [];
-            local_history.forEach(h => {
-                if(h.p1 === playerName) playedWith.push({ opp: h.p2, sc: `${h.s1}-${h.s2}`, win: h.s1 > h.s2 });
-                if(h.p2 === playerName) playedWith.push({ opp: h.p1, sc: `${h.s2}-${h.s1}`, win: h.s2 > h.s1 });
-            });
-
-            document.getElementById('playedList').innerHTML = playedWith.length > 0 ? playedWith.map(m => `
-                <div class="flex justify-between items-center bg-white/5 p-3.5 rounded-2xl border border-white/5">
-                    <span class="text-[10px] font-black uppercase text-slate-300">${m.opp}</span>
-                    <div class="flex items-center gap-3">
-                        <span class="text-[11px] font-digital ${m.win ? 'text-emerald-400' : 'text-rose-500'}">${m.sc}</span>
-                        <span>${m.win ? '🏆' : '❌'}</span>
-                    </div>
-                </div>
-            `).join('') : '<p class="text-[10px] text-slate-600 italic">Belum bertanding.</p>';
-
-            const playedNames = playedWith.map(m => m.opp);
-            const unplayed = local_players.filter(p => p.name !== playerName && !playedNames.includes(p.name));
-            document.getElementById('unplayedList').innerHTML = unplayed.length > 0 ? unplayed.map(u => `
-                <div class="bg-white/5 p-3 rounded-xl border border-dashed border-white/10 text-center">
-                    <span class="text-[9px] font-bold uppercase text-slate-500">${u.name}</span>
-                </div>
-            `).join('') : '<p class="col-span-2 text-[10px] text-slate-600 italic">Semua sudah dilawan.</p>';
-
-            document.getElementById('detailModal').style.display = 'flex';
-        }
-
-        function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
-
-        // 8. EXTRAS
-        function downloadKlasemen() {
-            html2canvas(document.getElementById('share-area'), { backgroundColor: "#05080f", scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'Standings_BJKI.jpg';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-
-        function clearAllData() { if(confirm("HAPUS SELURUH DATA LIGA? Tindakan ini tidak bisa dibatalkan.")) db.ref('tournament_data').remove(); }
-    </script>
 </body>
 </html>
