@@ -367,14 +367,13 @@
             const name = nameInput.value.trim().toUpperCase();
             if (!name) return alert("Nama tidak boleh kosong!");
             const { data, error } = await supabase.from('players').insert([{ name: name, points: 0 }]);
-            if (error) {console.error('Detail Error:', error); // Cek pesan error di Console (F12)alert("Gagal daftar: " + error.message);} else {
-        alert("Pemain " + name + " berhasil didaftarkan!");
-        nameInput.value = '';
-        fetchPlayers(); 
-    }
-}
-
-
+            if (error) {console.error('Detail Error:', error); 
+        // Cek pesan error di Console (F12)alert("Gagal daftar: " + error.message);} else {
+            alert("Pemain " + name + " berhasil didaftarkan!");
+            nameInput.value = '';
+            fetchPlayers(); 
+            }
+        }
         async function saveMatchOnline(table) {
             const p1n = document.getElementById(`t${table}_p1`).innerText;
             const p2n = document.getElementById(`t${table}_p2`).innerText;
