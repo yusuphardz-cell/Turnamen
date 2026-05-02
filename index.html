@@ -3,114 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJK Premium Dashboard</title>
+    <title>BJK Premium Dashboard - Track History</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #020617; 
-            color: #f8fafc;
-            background-image: radial-gradient(circle at 50% -20%, #1e293b, transparent);
-            background-attachment: fixed;
-        }
-
-        .glass { 
-            background: rgba(15, 23, 42, 0.7); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; background-attachment: fixed; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 9999; backdrop-filter: blur(10px); align-items: center; justify-content: center; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
+    <!-- MODAL (DUAL FUNGSI: PILIH PEMAIN & LIHAT RIWAYAT) -->
+    <div id="mainModal" class="modal-overlay">
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-lg mx-4">
+            <h3 id="modalTitle" class="text-xl font-extrabold text-white uppercase text-center mb-6 italic tracking-tighter">Detail</h3>
+            <div id="modalContent" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scroll">
+                <!-- Konten dinamis -->
+            </div>
+            <button onclick="closeModal()" class="w-full mt-6 py-4 rounded-xl bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-white/10">Tutup</button>
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto space-y-8">
         <!-- HEADER -->
         <header class="flex flex-col md:flex-row justify-between items-center bg-white/5 border border-white/10 p-8 rounded-[2.5rem] gap-6">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tighter text-white italic">BJK <span class="text-amber-500">COMMUNITY</span></h1>
-                <p class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-1">Tournament System Real-time</p>
+                <p class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-1">Player Tracking System</p>
             </div>
             <div class="flex gap-3">
                 <button onclick="downloadKlasemen()" class="px-6 py-3 rounded-2xl bg-blue-500/10 text-blue-400 font-bold text-[10px] uppercase border border-blue-500/20">Capture</button>
-                <button onclick="clearAllData()" class="px-6 py-3 rounded-2xl bg-rose-500/10 text-rose-500 font-bold text-[10px] uppercase border border-rose-500/20">Reset</button>
             </div>
         </header>
 
         <main class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <!-- PANEL INPUT (KIRI) -->
+            <!-- PANEL KIRI -->
             <div class="xl:col-span-4 space-y-6">
                 <div class="glass p-8 rounded-[2.5rem]">
                     <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-6">Pendaftaran Peserta</h2>
-                    <input type="text" id="pName" placeholder="Ketik nama pemain..." class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl outline-none focus:border-amber-500 text-white font-bold uppercase mb-4">
-                    <button onclick="addPlayerOnline()" id="btnSimpan" class="w-full bg-amber-500 text-black font-extrabold py-5 rounded-2xl text-[11px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all">Simpan Nama</button>
+                    <input type="text" id="pName" placeholder="Nama..." class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl outline-none focus:border-amber-500 text-white font-bold uppercase mb-4">
+                    <button onclick="addPlayerOnline()" class="w-full bg-amber-500 text-black font-extrabold py-5 rounded-2xl text-[11px] uppercase tracking-widest">Simpan Nama</button>
                 </div>
 
-                <!-- MATCHMAKING -->
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-6 rounded-[2rem] text-center">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-4 block">Meja 1</span>
-                        <button onclick="shuffleByTable(1)" class="w-full bg-blue-500/10 text-blue-400 py-3 rounded-xl font-bold text-[10px] uppercase mb-2">Acak</button>
+                    <div class="glass p-5 rounded-[2rem] text-center border-b-2 border-blue-500/50">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block">Meja 1</span>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="shuffleByTable(1)" class="bg-blue-500/10 text-blue-400 py-3 rounded-xl font-bold text-[9px] uppercase">Acak</button>
+                            <button onclick="openManualSelect(1)" class="bg-white/5 text-white py-3 rounded-xl font-bold text-[9px] uppercase">Pilih</button>
+                        </div>
                     </div>
-                    <div class="glass p-6 rounded-[2rem] text-center">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-4 block">Meja 2</span>
-                        <button onclick="shuffleByTable(2)" class="w-full bg-rose-500/10 text-rose-400 py-3 rounded-xl font-bold text-[10px] uppercase mb-2">Acak</button>
+                    <div class="glass p-5 rounded-[2rem] text-center border-b-2 border-rose-500/50">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block">Meja 2</span>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="shuffleByTable(2)" class="bg-rose-500/10 text-rose-400 py-3 rounded-xl font-bold text-[9px] uppercase">Acak</button>
+                            <button onclick="openManualSelect(2)" class="bg-white/5 text-white py-3 rounded-xl font-bold text-[9px] uppercase">Pilih</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- DASHBOARD (KANAN) -->
+            <!-- PANEL KANAN -->
             <div class="xl:col-span-8 space-y-8">
                 <!-- ARENA MEJA -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Meja 1 -->
                     <div class="glass p-8 rounded-[3rem]">
-                        <div class="flex justify-between items-center mb-8"><span class="bg-blue-600 text-white px-4 py-1 rounded-full text-[8px] font-bold">MEJA 1</span></div>
-                        <div class="flex justify-between items-center text-center gap-2">
-                            <div class="flex-1">
-                                <p id="t1_p1" class="text-xs font-bold uppercase mb-2">PLAYER 1</p>
-                                <div id="t1_s1" class="text-5xl font-mono font-bold mb-4">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t1_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div>
-                            </div>
-                            <div class="text-slate-700 italic font-black">VS</div>
-                            <div class="flex-1">
-                                <p id="t1_p2" class="text-xs font-bold uppercase mb-2">PLAYER 2</p>
-                                <div id="t1_s2" class="text-5xl font-mono font-bold mb-4">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t1_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div>
-                            </div>
+                        <div class="flex justify-between items-center mb-6"><span class="bg-blue-600 text-white px-4 py-1 rounded-full text-[8px] font-bold uppercase">Meja 1</span></div>
+                        <div class="flex justify-between items-center text-center gap-2 mb-6">
+                            <div class="flex-1"><p id="t1_p1" class="text-xs font-bold uppercase mb-2">PLAYER 1</p><div id="t1_s1" class="text-5xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
+                            <div class="text-slate-700 italic font-black text-xs">VS</div>
+                            <div class="flex-1"><p id="t1_p2" class="text-xs font-bold uppercase mb-2">PLAYER 2</p><div id="t1_s2" class="text-5xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
                         </div>
-                        <button onclick="saveMatchOnline(1)" class="w-full mt-8 py-4 bg-emerald-500 text-black font-bold rounded-xl text-[10px] uppercase">Simpan Skor</button>
+                        <button onclick="saveMatchOnline(1)" class="w-full py-4 bg-emerald-500 text-black font-bold rounded-xl text-[10px] uppercase">Simpan Skor</button>
                     </div>
                     <!-- Meja 2 -->
                     <div class="glass p-8 rounded-[3rem]">
-                        <div class="flex justify-between items-center mb-8"><span class="bg-rose-600 text-white px-4 py-1 rounded-full text-[8px] font-bold">MEJA 2</span></div>
-                        <div class="flex justify-between items-center text-center gap-2">
-                            <div class="flex-1">
-                                <p id="t2_p1" class="text-xs font-bold uppercase mb-2">PLAYER 1</p>
-                                <div id="t2_s1" class="text-5xl font-mono font-bold mb-4">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t2_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div>
-                            </div>
-                            <div class="text-slate-700 italic font-black">VS</div>
-                            <div class="flex-1">
-                                <p id="t2_p2" class="text-xs font-bold uppercase mb-2">PLAYER 2</p>
-                                <div id="t2_s2" class="text-5xl font-mono font-bold mb-4">0</div>
-                                <div class="flex gap-1"><button onclick="adjustScore('t2_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div>
-                            </div>
+                        <div class="flex justify-between items-center mb-6"><span class="bg-rose-600 text-white px-4 py-1 rounded-full text-[8px] font-bold uppercase">Meja 2</span></div>
+                        <div class="flex justify-between items-center text-center gap-2 mb-6">
+                            <div class="flex-1"><p id="t2_p1" class="text-xs font-bold uppercase mb-2">PLAYER 1</p><div id="t2_s1" class="text-5xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
+                            <div class="text-slate-700 italic font-black text-xs">VS</div>
+                            <div class="flex-1"><p id="t2_p2" class="text-xs font-bold uppercase mb-2">PLAYER 2</p><div id="t2_s2" class="text-5xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
                         </div>
-                        <button onclick="saveMatchOnline(2)" class="w-full mt-8 py-4 bg-emerald-500 text-black font-bold rounded-xl text-[10px] uppercase">Simpan Skor</button>
+                        <button onclick="saveMatchOnline(2)" class="w-full py-4 bg-emerald-500 text-black font-bold rounded-xl text-[10px] uppercase">Simpan Skor</button>
                     </div>
                 </div>
 
                 <!-- KLASEMEN -->
                 <div id="share-area" class="glass p-8 rounded-[2.5rem]">
-                    <h2 class="text-xl font-bold mb-6 italic uppercase tracking-tighter">Klasemen <span class="text-amber-500">Sementara</span></h2>
+                    <h2 class="text-xl font-bold mb-2 italic uppercase tracking-tighter">Klasemen <span class="text-amber-500">Sementara</span></h2>
+                    <p class="text-[9px] text-slate-500 mb-6 italic uppercase">* Klik nama pemain untuk melihat riwayat lawan</p>
                     <table class="w-full text-left">
                         <thead class="text-[9px] text-slate-500 uppercase tracking-widest border-b border-white/5">
                             <tr><th class="p-4">#</th><th class="p-4">Nama</th><th class="p-4 text-center">W</th><th class="p-4 text-center">PTS</th></tr>
@@ -123,132 +111,157 @@
     </div>
 
     <script>
-        // --- KONFIGURASI SUPABASE (GANTI DENGAN PUNYA ANDA) ---
-        const SUPABASE_URL = "https://xdgjjsdvrcqwwlmrxcpm.supabase.co"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZ2pqc2R2cmNxd3dsbXJ4Y3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mjk4MjAsImV4cCI6MjA5MDQwNTgyMH0.4dPYAZRrdd4RyPT4UU-jcpGglIr65Av9eUvKwLWOqKs"; 
+        // --- KONFIGURASI SUPABASE ---
+        const SUPABASE_URL = "https://PROJECT_ID.supabase.co"; 
+        const SUPABASE_KEY = "YOUR_ANON_KEY"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let local_players = [];
         let local_history = [];
+        let currentTargetTable = 1;
+        let selectedP1 = null;
 
-        // LOAD DATA
         async function loadData() {
-            try {
-                const { data: p, error: ep } = await _supabase.from('players').select('*').order('pts', { ascending: false });
-                const { data: h, error: eh } = await _supabase.from('history').select('*').order('created_at', { ascending: false });
-                
-                if (ep || eh) throw ep || eh;
-                
-                local_players = p || [];
-                local_history = h || [];
-                renderAll();
-            } catch (err) {
-                console.error("Gagal memuat data:", err.message);
-            }
+            const { data: p } = await _supabase.from('players').select('*').order('pts', { ascending: false });
+            const { data: h } = await _supabase.from('history').select('*');
+            local_players = p || [];
+            local_history = h || [];
+            renderAll();
         }
 
-        // FUNGSI SIMPAN NAMA (YANG DIPERBAIKI)
-        async function addPlayerOnline() {
-            const btn = document.getElementById('btnSimpan');
-            const inp = document.getElementById('pName');
-            const name = inp.value.trim().toUpperCase();
+        // --- FITUR BARU: LIHAT RIWAYAT LAWAN ---
+        function checkOpponents(playerName) {
+            const modal = document.getElementById('mainModal');
+            const content = document.getElementById('modalContent');
+            document.getElementById('modalTitle').innerText = "RIWAYAT: " + playerName;
 
-            if (!name) return alert("Masukkan nama terlebih dahulu!");
+            // Cari lawan yang sudah tanding dengan player ini
+            const opponentsPlayed = [];
+            local_history.forEach(m => {
+                if(m.p1 === playerName) opponentsPlayed.push(m.p2);
+                if(m.p2 === playerName) opponentsPlayed.push(m.p1);
+            });
+
+            // Filter pemain lain (selain diri sendiri)
+            const otherPlayers = local_players.filter(p => p.name !== playerName);
             
-            // Animasi loading sederhana
-            btn.disabled = true;
-            btn.innerText = "MENYIMPAN...";
+            let html = `
+                <div class="mb-4 bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20">
+                    <p class="text-[10px] text-emerald-500 font-bold uppercase mb-3">Sudah Tanding:</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${[...new Set(opponentsPlayed)].map(opp => `<span class="bg-emerald-500 text-black text-[9px] font-bold px-3 py-1 rounded-full uppercase">${opp}</span>`).join('') || '<span class="text-slate-500 text-[9px]">Belum ada</span>'}
+                    </div>
+                </div>
+                <div class="bg-rose-500/10 p-4 rounded-2xl border border-rose-500/20">
+                    <p class="text-[10px] text-rose-500 font-bold uppercase mb-3">Belum Tanding:</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${otherPlayers.filter(p => !opponentsPlayed.includes(p.name)).map(opp => `<span class="bg-rose-500 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase">${opp.name}</span>`).join('') || '<span class="text-emerald-500 text-[9px]">Semua sudah dilawan!</span>'}
+                    </div>
+                </div>
+            `;
 
-            try {
-                const { data, error } = await _supabase
-                    .from('players')
-                    .insert([{ name: name, p: 0, w: 0, l: 0, pts: 0 }]);
+            content.innerHTML = html;
+            modal.style.display = 'flex';
+        }
 
-                if (error) {
-                    if (error.code === "23505") alert("Nama ini sudah terdaftar!");
-                    else alert("Error: " + error.message);
-                } else {
-                    inp.value = "";
-                    // Tidak perlu reload, realtime akan mengupdate
-                }
-            } catch (err) {
-                alert("Kesalahan koneksi!");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "SIMPAN NAMA";
+        // --- FITUR PILIH PEMAIN MANUAL ---
+        function openManualSelect(table) {
+            currentTargetTable = table;
+            selectedP1 = null;
+            document.getElementById('modalTitle').innerText = "PILIH P1 - MEJA " + table;
+            renderPlayerSelection();
+            document.getElementById('mainModal').style.display = 'flex';
+        }
+
+        function renderPlayerSelection() {
+            const content = document.getElementById('modalContent');
+            let otherTable = currentTargetTable === 1 ? 2 : 1;
+            let busy = [document.getElementById(`t${otherTable}_p1`).innerText, document.getElementById(`t${otherTable}_p2`).innerText, selectedP1];
+
+            const available = local_players.filter(p => !busy.includes(p.name));
+            content.innerHTML = available.map(p => `
+                <button onclick="processSelection('${p.name}')" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-amber-500 hover:text-black transition-all group">
+                    <span class="font-bold uppercase text-xs group-hover:text-black">${p.name}</span>
+                </button>
+            `).join('') || '<p class="text-center text-slate-500 py-4 text-xs">Pemain tidak tersedia</p>';
+        }
+
+        function processSelection(name) {
+            if (!selectedP1) {
+                selectedP1 = name;
+                document.getElementById(`t${currentTargetTable}_p1`).innerText = name;
+                document.getElementById('modalTitle').innerText = "PILIH LAWAN " + name;
+                renderPlayerSelection();
+            } else {
+                document.getElementById(`t${currentTargetTable}_p2`).innerText = name;
+                closeModal();
             }
         }
 
-        // RENDER KLASEMEN
+        function closeModal() { document.getElementById('mainModal').style.display = 'none'; }
+
+        // --- CORE FUNCTIONS ---
         function renderAll() {
             document.getElementById('rankTable').innerHTML = local_players.map((p, i) => `
-                <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
-                    <td class="p-4 font-mono text-slate-500">${i+1}</td>
-                    <td class="p-4 font-bold uppercase text-sm">${p.name}</td>
-                    <td class="p-4 text-center text-emerald-500 font-mono">${p.w}</td>
+                <tr class="border-b border-white/5">
+                    <td class="p-4 font-mono text-slate-600 text-[10px]">${i+1}</td>
+                    <td class="p-4">
+                        <button onclick="checkOpponents('${p.name}')" class="font-bold uppercase text-sm hover:text-amber-500 transition-colors text-left">
+                            ${p.name}
+                        </button>
+                    </td>
+                    <td class="p-4 text-center text-emerald-500 font-mono text-xs">${p.w}</td>
                     <td class="p-4 text-center text-amber-500 font-bold text-lg">${p.pts}</td>
                 </tr>
             `).join('');
         }
 
-        // SIMPAN SKOR PERTANDINGAN
+        async function addPlayerOnline() {
+            const inp = document.getElementById('pName');
+            const name = inp.value.trim().toUpperCase();
+            if (!name) return;
+            await _supabase.from('players').insert([{ name, p:0, w:0, l:0, pts:0 }]);
+            inp.value = "";
+        }
+
         async function saveMatchOnline(table) {
             const p1n = document.getElementById(`t${table}_p1`).innerText;
             const p2n = document.getElementById(`t${table}_p2`).innerText;
             const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
             const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-
-            if(p1n === "PLAYER 1" || s1 === s2) return alert("Data tidak valid!");
+            if(p1n.includes("PLAYER") || s1 === s2) return alert("Skor/Pemain tidak valid!");
 
             const p1 = local_players.find(p => p.name === p1n);
             const p2 = local_players.find(p => p.name === p2n);
 
-            // Update Poin
-            const u1 = { p: p1.p+1, w: s1>s2?p1.w+1:p1.w, pts: s1>s2?p1.pts+1:p1.pts };
-            const u2 = { p: p2.p+1, w: s2>s1?p2.w+1:p2.w, pts: s2>s1?p2.pts+1:p2.pts };
-
             await _supabase.from('history').insert([{ p1: p1n, p2: p2n, s1, s2 }]);
-            await _supabase.from('players').update(u1).eq('name', p1n);
-            await _supabase.from('players').update(u2).eq('name', p2n);
+            await _supabase.from('players').update({ p: p1.p+1, w: s1>s2?p1.w+1:p1.w, pts: s1>s2?p1.pts+1:p1.pts }).eq('name', p1n);
+            await _supabase.from('players').update({ p: p2.p+1, w: s2>s1?p2.w+1:p2.w, pts: s2>s1?p2.pts+1:p2.pts }).eq('name', p2n);
 
-            // Reset Tampilan Meja
-            document.getElementById(`t${table}_p1`).innerText = "PLAYER 1";
-            document.getElementById(`t${table}_p2`).innerText = "PLAYER 2";
-            document.getElementById(`t${table}_s1`).innerText = "0";
-            document.getElementById(`t${table}_s2`).innerText = "0";
+            ["p1","p2"].forEach(px => document.getElementById(`t${table}_${px}`).innerText = "PLAYER");
+            ["s1","s2"].forEach(sx => document.getElementById(`t${table}_${sx}`).innerText = "0");
         }
 
-        // ACAK PEMAIN
         function shuffleByTable(table) {
-            if (local_players.length < 2) return alert("Minimal harus ada 2 pemain!");
-            let available = [...local_players].sort(() => Math.random() - 0.5);
-            document.getElementById(`t${table}_p1`).innerText = available[0].name;
-            document.getElementById(`t${table}_p2`).innerText = available[1].name;
+            let other = table === 1 ? 2 : 1;
+            let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
+            let av = local_players.filter(p => !busy.includes(p.name)).sort(() => Math.random() - 0.5);
+            if (av.length < 2) return alert("Pemain kurang!");
+            document.getElementById(`t${table}_p1`).innerText = av[0].name;
+            document.getElementById(`t${table}_p2`).innerText = av[1].name;
         }
 
-        function adjustScore(id, v) { 
-            let e = document.getElementById(id); 
-            e.innerText = Math.max(0, parseInt(e.innerText) + v); 
-        }
-
-        async function clearAllData() {
-            if(confirm("Hapus semua data?")) {
-                await _supabase.from('history').delete().neq('p1', '');
-                await _supabase.from('players').delete().neq('name', '');
-            }
-        }
+        function adjustScore(id, v) { let e = document.getElementById(id); e.innerText = Math.max(0, parseInt(e.innerText) + v); }
 
         function downloadKlasemen() {
             html2canvas(document.getElementById('share-area'), { backgroundColor: "#020617" }).then(c => {
-                let l = document.createElement('a'); l.download = 'klasemen.jpg'; l.href = c.toDataURL(); l.click();
+                let l = document.createElement('a'); l.download = 'BJK-Standings.jpg'; l.href = c.toDataURL(); l.click();
             });
         }
 
-        // REALTIME SUBSCRIPTION
-        _supabase.channel('db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, loadData)
+        _supabase.channel('db').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, loadData)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, loadData).subscribe();
 
-        // INIT
         loadData();
     </script>
 </body>
