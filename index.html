@@ -133,27 +133,38 @@
 
         // --- FITUR RESET DATA ---
         async function resetTournamentData() {
-            const yakin = confirm("⚠️ PERINGATAN!\n\nSeluruh data Pemain dan Riwayat Pertandingan akan DIHAPUS PERMANEN dari database.\n\nApakah Anda yakin?");
-            
-            if (yakin) {
-                try {
-                    // Hapus semua baris di history (menggunakan filter neq agar memenuhi syarat Supabase)
-                    const { error: eh } = await _supabase.from('history').delete().neq('p1', 'X_IMPOSSIBLE_VALUE_X');
-                    // Hapus semua baris di players
-                    const { error: ep } = await _supabase.from('players').delete().neq('name', 'X_IMPOSSIBLE_VALUE_X');
+    const yakin = confirm("⚠️ PERINGATAN!\n\nSeluruh data Pemain dan Riwayat Pertandingan akan DIHAPUS PERMANEN.\n\nApakah Anda yakin?");
+    
+    if (yakin) {
+        try {
+            // Ambil semua ID/Nama untuk dihapus secara spesifik agar tidak memicu error mass-delete protection
+            const { data: playersToDelete } = await _supabase.from('players').select('name');
+            const { data: historyToDelete } = await _supabase.from('history').select('id');
 
-                    if (eh || ep) throw (eh || ep);
-
-                    alert("✅ Data berhasil dikosongkan!");
-                    // Reset UI Meja
-                    ["t1_p1","t1_p2","t2_p1","t2_p2"].forEach(id => document.getElementById(id).innerText = "PLAYER");
-                    ["t1_s1","t1_s2","t2_s1","t2_s2"].forEach(id => document.getElementById(id).innerText = "0");
-                } catch (err) {
-                    alert("Gagal reset: " + err.message);
-                }
+            if (historyToDelete && historyToDelete.length > 0) {
+                const historyIds = historyToDelete.map(h => h.id);
+                await _supabase.from('history').delete().in('id', historyIds);
             }
-        }
 
+            if (playersToDelete && playersToDelete.length > 0) {
+                const playerNames = playersToDelete.map(p => p.name);
+                await _supabase.from('players').delete().in('name', playerNames);
+            }
+
+            alert("✅ Data berhasil dikosongkan secara bersih!");
+            
+            // Reset UI Meja secara lokal
+            ["t1_p1","t1_p2","t2_p1","t2_p2"].forEach(id => document.getElementById(id).innerText = "PLAYER");
+            ["t1_s1","t1_s2","t2_s1","t2_s2"].forEach(id => document.getElementById(id).innerText = "0");
+            
+            // Reload data untuk memastikan tabel kosong
+            loadData();
+            
+        } catch (err) {
+            console.error(err);
+            alert("Terjadi kesalahan koneksi. Pastikan internet stabil dan RLS Supabase mengizinkan DELETE.");
+        }
+    }
         // --- FITUR RIWAYAT ---
         function checkOpponents(playerName) {
             const modal = document.getElementById('mainModal');
