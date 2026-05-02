@@ -363,12 +363,17 @@
 
         // --- DATABASE OPERATIONS ---
         async function addPlayerOnline() {
-            const inp = document.getElementById('pName');
-            const name = inp.value.trim().toUpperCase();
-            if(!name || local_players.some(p => p.name === name)) return;
-            await _supabase.from('players').insert([{ name, p:0, w:0, l:0, pts:0 }]);
-            inp.value = "";
-        }
+            const nameInput = document.getElementById('pName');
+            const name = nameInput.value.trim().toUpperCase();
+            if (!name) return alert("Nama tidak boleh kosong!");
+            const { data, error } = await supabase.from('players').insert([{ name: name, points: 0 }]);
+            if (error) {console.error('Detail Error:', error); // Cek pesan error di Console (F12)alert("Gagal daftar: " + error.message);} else {
+        alert("Pemain " + name + " berhasil didaftarkan!");
+        nameInput.value = '';
+        fetchPlayers(); 
+    }
+}
+
 
         async function saveMatchOnline(table) {
             const p1n = document.getElementById(`t${table}_p1`).innerText;
