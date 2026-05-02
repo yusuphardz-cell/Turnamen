@@ -133,10 +133,10 @@
 
         // --- FITUR RESET DATA ---
         async function resetTournamentData() {
-    const yakin = confirm("⚠️ KONFIRMASI RESET\n\nHapus semua data pemain dan riwayat pertandingan?");
+            const yakin = confirm("⚠️ KONFIRMASI RESET\n\nHapus semua data pemain dan riwayat pertandingan?");
     
-    if (yakin) {
-        try {
+            if (yakin) {
+            try {
             // 1. Hapus Riwayat Terlebih Dahulu (karena biasanya ada foreign key/relasi)
             const { error: errorHistory } = await _supabase
                 .from('history')
