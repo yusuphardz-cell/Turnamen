@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BJK Tournament System Pro</title>
+    <title>BJK Management System - Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 9999; backdrop-filter: blur(10px); align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 9999; backdrop-filter: blur(10px); align-items: center; justify-content: center; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <!-- MODAL POPUP -->
+    <!-- MODAL -->
     <div id="mainModal" class="modal-overlay">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-lg mx-4 border border-white/10">
-            <h3 id="modalTitle" class="text-xl font-extrabold text-white uppercase text-center mb-6 italic tracking-tighter">Detail</h3>
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-lg mx-4">
+            <h3 id="modalTitle" class="text-xl font-extrabold text-white uppercase text-center mb-6 italic italic">Detail</h3>
             <div id="modalContent" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scroll"></div>
-            <button onclick="closeModal()" class="w-full mt-6 py-4 rounded-xl bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-white/10 hover:bg-white/10">Tutup</button>
+            <button onclick="closeModal()" class="w-full mt-6 py-4 rounded-xl bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-white/10 hover:bg-white/20">Tutup</button>
         </div>
     </div>
 
@@ -33,78 +32,74 @@
         <header class="flex flex-col md:flex-row justify-between items-center bg-white/5 border border-white/10 p-8 rounded-[2.5rem] gap-6">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tighter text-white italic uppercase">BJK <span class="text-amber-500">Community</span></h1>
-                <p class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-1">League Management System</p>
+                <p class="text-[10px] text-slate-500 font-mono uppercase tracking-[0.4em] mt-1">Tournament System v7.0</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="downloadKlasemen()" class="px-6 py-3 rounded-2xl bg-blue-500/10 text-blue-400 font-bold text-[10px] uppercase border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all">Capture</button>
+                <button onclick="downloadKlasemen()" class="px-6 py-3 rounded-2xl bg-blue-500/10 text-blue-400 font-bold text-[10px] uppercase border border-blue-500/20">Capture</button>
                 <button onclick="resetTournamentData()" class="px-6 py-3 rounded-2xl bg-rose-500/10 text-rose-500 font-bold text-[10px] uppercase border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all">Reset Data</button>
             </div>
         </header>
 
         <main class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <!-- INPUT PEMAIN -->
+            <!-- INPUT & CONTROL -->
             <div class="xl:col-span-4 space-y-6">
                 <div class="glass p-8 rounded-[2.5rem]">
-                    <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-6 italic">Pendaftaran Peserta</h2>
-                    <input type="text" id="pName" placeholder="Nama Pemain..." class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl outline-none focus:border-amber-500 text-white font-bold uppercase mb-4 transition-all">
-                    <button onclick="addPlayerOnline()" class="w-full bg-amber-500 text-black font-extrabold py-5 rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all">Tambah Pemain</button>
+                    <h2 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-6">Registrasi</h2>
+                    <input type="text" id="pName" placeholder="Nama..." class="w-full p-5 bg-slate-900 border border-white/5 rounded-2xl outline-none focus:border-amber-500 text-white font-bold uppercase mb-4">
+                    <button onclick="addPlayerOnline()" class="w-full bg-amber-500 text-black font-extrabold py-5 rounded-2xl text-[11px] uppercase tracking-widest">Tambah Pemain</button>
                 </div>
 
-                <!-- KONTROL MEJA -->
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-5 rounded-[2rem] text-center border-b-2 border-blue-500/50">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block italic">Meja 1</span>
+                    <div class="glass p-5 rounded-[2rem] text-center">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block">Meja 1</span>
                         <div class="flex flex-col gap-2">
-                            <button onclick="shuffleByTable(1)" class="bg-blue-500/10 text-blue-400 py-3 rounded-xl font-bold text-[9px] uppercase border border-blue-500/10">Acak</button>
+                            <button onclick="shuffleByTable(1)" class="bg-blue-500/10 text-blue-400 py-3 rounded-xl font-bold text-[9px] uppercase">Acak</button>
                             <button onclick="openManualSelect(1)" class="bg-white/5 text-white py-3 rounded-xl font-bold text-[9px] uppercase">Pilih</button>
                         </div>
                     </div>
-                    <div class="glass p-5 rounded-[2rem] text-center border-b-2 border-rose-500/50">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block italic">Meja 2</span>
+                    <div class="glass p-5 rounded-[2rem] text-center">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase mb-3 block">Meja 2</span>
                         <div class="flex flex-col gap-2">
-                            <button onclick="shuffleByTable(2)" class="bg-rose-500/10 text-rose-400 py-3 rounded-xl font-bold text-[9px] uppercase border border-rose-500/10">Acak</button>
+                            <button onclick="shuffleByTable(2)" class="bg-rose-500/10 text-rose-400 py-3 rounded-xl font-bold text-[9px] uppercase">Acak</button>
                             <button onclick="openManualSelect(2)" class="bg-white/5 text-white py-3 rounded-xl font-bold text-[9px] uppercase">Pilih</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SKOR & KLASEMEN -->
+            <!-- MEJA & KLASEMEN -->
             <div class="xl:col-span-8 space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Card Meja 1 -->
+                    <!-- Meja 1 -->
                     <div class="glass p-8 rounded-[3rem]">
                         <div class="flex justify-between items-center mb-6"><span class="bg-blue-600 text-white px-4 py-1 rounded-full text-[8px] font-bold uppercase">Meja 1</span></div>
                         <div class="flex justify-between items-center text-center gap-2 mb-6">
-                            <div class="flex-1"><p id="t1_p1" class="text-[10px] font-bold uppercase mb-2 truncate">PLAYER 1</p><div id="t1_s1" class="text-6xl font-mono font-bold mb-4 text-white">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
-                            <div class="text-slate-800 italic font-black text-xs">VS</div>
-                            <div class="flex-1"><p id="t1_p2" class="text-[10px] font-bold uppercase mb-2 truncate">PLAYER 2</p><div id="t1_s2" class="text-6xl font-mono font-bold mb-4 text-white">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
+                            <div class="flex-1"><p id="t1_p1" class="text-xs font-bold uppercase mb-2">PLAYER</p><div id="t1_s1" class="text-6xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s1', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
+                            <div class="text-slate-800 italic font-black">VS</div>
+                            <div class="flex-1"><p id="t1_p2" class="text-xs font-bold uppercase mb-2">PLAYER</p><div id="t1_s2" class="text-6xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t1_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t1_s2', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
                         </div>
-                        <button onclick="saveMatchOnline(1)" class="w-full py-4 bg-emerald-500 text-black font-extrabold rounded-xl text-[10px] uppercase tracking-widest active:bg-emerald-400 transition-all">Simpan Skor</button>
+                        <button onclick="saveMatchOnline(1)" class="w-full py-4 bg-emerald-500 text-black font-extrabold rounded-xl text-[10px] uppercase">Simpan Skor</button>
                     </div>
-                    <!-- Card Meja 2 -->
+                    <!-- Meja 2 -->
                     <div class="glass p-8 rounded-[3rem]">
                         <div class="flex justify-between items-center mb-6"><span class="bg-rose-600 text-white px-4 py-1 rounded-full text-[8px] font-bold uppercase">Meja 2</span></div>
                         <div class="flex justify-between items-center text-center gap-2 mb-6">
-                            <div class="flex-1"><p id="t2_p1" class="text-[10px] font-bold uppercase mb-2 truncate">PLAYER 1</p><div id="t2_s1" class="text-6xl font-mono font-bold mb-4 text-white">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
-                            <div class="text-slate-800 italic font-black text-xs">VS</div>
-                            <div class="flex-1"><p id="t2_p2" class="text-[10px] font-bold uppercase mb-2 truncate">PLAYER 2</p><div id="t2_s2" class="text-6xl font-mono font-bold mb-4 text-white">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
+                            <div class="flex-1"><p id="t2_p1" class="text-xs font-bold uppercase mb-2">PLAYER</p><div id="t2_s1" class="text-6xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s1', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s1', 1)" class="flex-1 h-8 bg-blue-500/20 rounded-lg">+</button></div></div>
+                            <div class="text-slate-800 italic font-black">VS</div>
+                            <div class="flex-1"><p id="t2_p2" class="text-xs font-bold uppercase mb-2">PLAYER</p><div id="t2_s2" class="text-6xl font-mono font-bold mb-4">0</div><div class="flex gap-1"><button onclick="adjustScore('t2_s2', -1)" class="w-8 h-8 bg-white/5 rounded-lg">-</button><button onclick="adjustScore('t2_s2', 1)" class="flex-1 h-8 bg-rose-500/20 rounded-lg">+</button></div></div>
                         </div>
-                        <button onclick="saveMatchOnline(2)" class="w-full py-4 bg-emerald-500 text-black font-extrabold rounded-xl text-[10px] uppercase tracking-widest active:bg-emerald-400 transition-all">Simpan Skor</button>
+                        <button onclick="saveMatchOnline(2)" class="w-full py-4 bg-emerald-500 text-black font-extrabold rounded-xl text-[10px] uppercase">Simpan Skor</button>
                     </div>
                 </div>
 
-                <!-- TABEL KLASEMEN -->
-                <div id="share-area" class="glass p-8 rounded-[2.5rem] border border-white/5">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold italic uppercase tracking-tighter text-white">Klasemen Sementara</h2>
-                        <span class="text-[9px] text-slate-500 uppercase font-mono tracking-widest">BJK Community</span>
-                    </div>
+                <!-- TABLE -->
+                <div id="share-area" class="glass p-8 rounded-[2.5rem]">
+                    <h2 class="text-xl font-bold mb-6 italic uppercase">Klasemen Sementara</h2>
                     <table class="w-full text-left">
-                        <thead class="text-[9px] text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
-                            <tr><th class="p-4">Pos</th><th class="p-4">Pemain</th><th class="p-4 text-center">W</th><th class="p-4 text-center">Pts</th></tr>
+                        <thead class="text-[9px] text-slate-500 uppercase tracking-widest border-b border-white/5">
+                            <tr><th class="p-4">#</th><th class="p-4">Nama</th><th class="p-4 text-center">W</th><th class="p-4 text-center">Pts</th></tr>
                         </thead>
-                        <tbody id="rankTable" class="divide-y divide-white/5"></tbody>
+                        <tbody id="rankTable"></tbody>
                     </table>
                 </div>
             </div>
@@ -112,9 +107,9 @@
     </div>
 
     <script>
-        // KONFIGURASI SUPABASE
-        const SUPABASE_URL = "https://xdgjjsdvrcqwwlmrxcpm.supabase.co/rest/v1/"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZ2pqc2R2cmNxd3dsbXJ4Y3BtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4Mjk4MjAsImV4cCI6MjA5MDQwNTgyMH0.4dPYAZRrdd4RyPT4UU-jcpGglIr65Av9eUvKwLWOqKs"; 
+        // ISI DENGAN DATA ANDA
+        const SUPABASE_URL = "https://PROJECT_ID.supabase.co";
+        const SUPABASE_KEY = "YOUR_ANON_KEY";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let local_players = [];
@@ -123,31 +118,29 @@
         let selectedP1 = null;
 
         async function loadData() {
-            const { data: p } = await _supabase.from('players').select('*').order('pts', { ascending: false }).order('w', { ascending: false });
-            const { data: h } = await _supabase.from('history').select('*');
-            local_players = p || [];
-            local_history = h || [];
-            renderAll();
+            try {
+                const { data: p } = await _supabase.from('players').select('*').order('pts', { ascending: false }).order('w', { ascending: false });
+                const { data: h } = await _supabase.from('history').select('*');
+                local_players = p || [];
+                local_history = h || [];
+                renderAll();
+            } catch (e) { console.error("Load Error:", e); }
         }
 
-        // FUNGSI RESET - VERSI STABIL
+        // RESET FIX: MENGGUNAKAN FILTER YANG LEBIH AMAN UNTUK URL
         async function resetTournamentData() {
-            const yakin = confirm("⚠️ PERINGATAN KERAS!\nHapus semua pemain dan riwayat pertandingan?");
-            if (!yakin) return;
+            if (!confirm("Hapus semua data?")) return;
 
             try {
-                // Hapus history dulu
-                const { error: eh } = await _supabase.from('history').delete().filter('p1', 'neq', 'X');
-                // Hapus players
-                const { error: ep } = await _supabase.from('players').delete().filter('name', 'neq', 'X');
+                // Gunakan filter yang pasti benar secara sintaksis URL (.neq tidak boleh kosong)
+                await _supabase.from('history').delete().not('p1', 'is', null);
+                await _supabase.from('players').delete().not('name', 'is', null);
 
-                if (eh || ep) throw (eh || ep);
-
-                alert("✅ Data berhasil dibersihkan!");
-                location.reload(); // Refresh halaman untuk reset UI total
+                alert("✅ Data Berhasil Direset");
+                location.reload();
             } catch (err) {
+                alert("Gagal reset. Cek RLS Policy di Supabase.");
                 console.error(err);
-                alert("Gagal reset: " + err.message);
             }
         }
 
@@ -155,61 +148,53 @@
         function checkOpponents(playerName) {
             const modal = document.getElementById('mainModal');
             const content = document.getElementById('modalContent');
-            document.getElementById('modalTitle').innerText = "Detail: " + playerName;
+            document.getElementById('modalTitle').innerText = "Riwayat: " + playerName;
 
-            const opponentsPlayed = [];
+            const played = [];
             local_history.forEach(m => {
-                if(m.p1 === playerName) opponentsPlayed.push(m.p2);
-                if(m.p2 === playerName) opponentsPlayed.push(m.p1);
+                if(m.p1 === playerName) played.push(m.p2);
+                if(m.p2 === playerName) played.push(m.p1);
             });
 
             const others = local_players.filter(p => p.name !== playerName);
             
             content.innerHTML = `
-                <div class="mb-4 bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20">
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase mb-3 tracking-widest">Sudah Ditandingi:</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${[...new Set(opponentsPlayed)].map(opp => `<span class="bg-emerald-500 text-black text-[9px] font-extrabold px-3 py-1 rounded-full uppercase">${opp}</span>`).join('') || '<span class="text-slate-600 text-[9px]">Belum ada</span>'}
-                    </div>
+                <div class="mb-4 bg-emerald-500/10 p-5 rounded-2xl">
+                    <p class="text-[10px] text-emerald-500 font-bold uppercase mb-2">Sudah Lawan:</p>
+                    <div class="flex flex-wrap gap-1">${[...new Set(played)].map(n => `<span class="bg-emerald-500 text-black text-[9px] px-2 py-0.5 rounded font-bold">${n}</span>`).join('') || '-'}</div>
                 </div>
-                <div class="bg-rose-500/10 p-5 rounded-2xl border border-rose-500/20">
-                    <p class="text-[10px] text-rose-400 font-bold uppercase mb-3 tracking-widest">Belum Ditandingi:</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${others.filter(p => !opponentsPlayed.includes(p.name)).map(opp => `<span class="bg-rose-500 text-white text-[9px] font-extrabold px-3 py-1 rounded-full uppercase">${opp.name}</span>`).join('') || '<span class="text-emerald-500 text-[9px]">Semua sudah tanding!</span>'}
-                    </div>
+                <div class="bg-rose-500/10 p-5 rounded-2xl">
+                    <p class="text-[10px] text-rose-500 font-bold uppercase mb-2">Belum Lawan:</p>
+                    <div class="flex flex-wrap gap-1">${others.filter(o => !played.includes(o.name)).map(o => `<span class="bg-rose-500 text-white text-[9px] px-2 py-0.5 rounded font-bold">${o.name}</span>`).join('') || '-'}</div>
                 </div>
             `;
             modal.style.display = 'flex';
         }
 
-        // MATCHMAKING MANUAL
+        // SELEKSI MANUAL
         function openManualSelect(table) {
             currentTargetTable = table;
             selectedP1 = null;
             document.getElementById('modalTitle').innerText = "Pilih P1 - Meja " + table;
-            renderPlayerSelection();
+            renderSelection();
             document.getElementById('mainModal').style.display = 'flex';
         }
 
-        function renderPlayerSelection() {
-            const content = document.getElementById('modalContent');
-            let other = currentTargetTable === 1 ? 2 : 1;
-            let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText, selectedP1];
+        function renderSelection() {
+            const other = currentTargetTable === 1 ? 2 : 1;
+            const busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText, selectedP1];
             const av = local_players.filter(p => !busy.includes(p.name));
-            
-            content.innerHTML = av.map(p => `
-                <button onclick="processSelection('${p.name}')" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-amber-500 hover:text-black transition-all">
-                    <span class="font-bold uppercase text-xs">${p.name}</span>
-                </button>
-            `).join('') || '<p class="text-center text-slate-500 py-4 text-xs italic uppercase">Pemain tidak tersedia</p>';
+            document.getElementById('modalContent').innerHTML = av.map(p => `
+                <button onclick="handleSelect('${p.name}')" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-amber-500 hover:text-black font-bold uppercase text-xs transition-all">${p.name}</button>
+            `).join('');
         }
 
-        function processSelection(name) {
+        function handleSelect(name) {
             if (!selectedP1) {
                 selectedP1 = name;
                 document.getElementById(`t${currentTargetTable}_p1`).innerText = name;
-                document.getElementById('modalTitle').innerText = "Pilih Lawan " + name;
-                renderPlayerSelection();
+                document.getElementById('modalTitle').innerText = "Lawan untuk " + name;
+                renderSelection();
             } else {
                 document.getElementById(`t${currentTargetTable}_p2`).innerText = name;
                 closeModal();
@@ -218,71 +203,63 @@
 
         function closeModal() { document.getElementById('mainModal').style.display = 'none'; }
 
-        // RENDERING & CORE
+        // RENDERING
         function renderAll() {
             document.getElementById('rankTable').innerHTML = local_players.map((p, i) => `
-                <tr class="hover:bg-white/5 transition-colors group">
-                    <td class="p-4 font-mono text-slate-600 text-[10px] italic">${i+1}</td>
-                    <td class="p-4">
-                        <button onclick="checkOpponents('${p.name}')" class="font-extrabold uppercase text-xs group-hover:text-amber-500 transition-colors text-left">${p.name}</button>
-                    </td>
-                    <td class="p-4 text-center text-emerald-500 font-mono text-xs font-bold">${p.w}</td>
-                    <td class="p-4 text-center text-amber-500 font-black text-lg">${p.pts}</td>
+                <tr class="border-b border-white/5">
+                    <td class="p-4 font-mono text-slate-600 text-xs">${i+1}</td>
+                    <td class="p-4"><button onclick="checkOpponents('${p.name}')" class="font-bold uppercase text-sm hover:text-amber-500">${p.name}</button></td>
+                    <td class="p-4 text-center text-emerald-500 font-mono text-xs">${p.w}</td>
+                    <td class="p-4 text-center text-amber-500 font-bold text-lg">${p.pts}</td>
                 </tr>
             `).join('');
         }
 
         async function addPlayerOnline() {
-            const inp = document.getElementById('pName');
-            const name = inp.value.trim().toUpperCase();
-            if (!name) return;
-            const { error } = await _supabase.from('players').insert([{ name, p:0, w:0, l:0, pts:0 }]);
-            if(error) alert("Gagal tambah: " + error.message); else inp.value = "";
+            const n = document.getElementById('pName').value.trim().toUpperCase();
+            if(!n) return;
+            await _supabase.from('players').insert([{ name: n, p:0, w:0, l:0, pts:0 }]);
+            document.getElementById('pName').value = "";
         }
 
-        async function saveMatchOnline(table) {
-            const p1n = document.getElementById(`t${table}_p1`).innerText;
-            const p2n = document.getElementById(`t${table}_p2`).innerText;
-            const s1 = parseInt(document.getElementById(`t${table}_s1`).innerText);
-            const s2 = parseInt(document.getElementById(`t${table}_s2`).innerText);
-            
-            if(p1n.includes("PLAYER") || s1 === s2) return alert("Cek kembali Nama & Skor!");
+        async function saveMatchOnline(t) {
+            const p1n = document.getElementById(`t${t}_p1`).innerText;
+            const p2n = document.getElementById(`t${t}_p2`).innerText;
+            const s1 = parseInt(document.getElementById(`t${t}_s1`).innerText);
+            const s2 = parseInt(document.getElementById(`t${t}_s2`).innerText);
+            if(p1n === "PLAYER" || s1 === s2) return alert("Cek Nama/Skor!");
 
-            const p1 = local_players.find(p => p.name === p1n);
-            const p2 = local_players.find(p => p.name === p2n);
+            const p1 = local_players.find(x => x.name === p1n);
+            const p2 = local_players.find(x => x.name === p2n);
 
-            try {
-                await _supabase.from('history').insert([{ p1: p1n, p2: p2n, s1, s2 }]);
-                await _supabase.from('players').update({ p: p1.p+1, w: s1>s2?p1.w+1:p1.w, pts: s1>s2?p1.pts+1:p1.pts }).eq('name', p1n);
-                await _supabase.from('players').update({ p: p2.p+1, w: s2>s1?p2.w+1:p2.w, pts: s2>s1?p2.pts+1:p2.pts }).eq('name', p2n);
+            await _supabase.from('history').insert([{ p1: p1n, p2: p2n, s1, s2 }]);
+            await _supabase.from('players').update({ p: p1.p+1, w: s1>s2?p1.w+1:p1.w, pts: s1>s2?p1.pts+1:p1.pts }).eq('name', p1n);
+            await _supabase.from('players').update({ p: p2.p+1, w: s2>s1?p2.w+1:p2.w, pts: s2>s1?p2.pts+1:p2.pts }).eq('name', p2n);
 
-                document.getElementById(`t${table}_p1`).innerText = "PLAYER";
-                document.getElementById(`t${table}_p2`).innerText = "PLAYER";
-                document.getElementById(`t${table}_s1`).innerText = "0";
-                document.getElementById(`t${table}_s2`).innerText = "0";
-            } catch (e) { alert("Error menyimpan: " + e.message); }
+            ["p1","p2"].forEach(x => document.getElementById(`t${t}_${x}`).innerText = "PLAYER");
+            ["s1","s2"].forEach(x => document.getElementById(`t${t}_${x}`).innerText = "0");
         }
 
-        function shuffleByTable(table) {
-            let other = table === 1 ? 2 : 1;
-            let busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
-            let av = local_players.filter(p => !busy.includes(p.name)).sort(() => Math.random() - 0.5);
-            if (av.length < 2) return alert("Pemain kurang!");
-            document.getElementById(`t${table}_p1`).innerText = av[0].name;
-            document.getElementById(`t${table}_p2`).innerText = av[1].name;
+        function shuffleByTable(t) {
+            const other = t === 1 ? 2 : 1;
+            const busy = [document.getElementById(`t${other}_p1`).innerText, document.getElementById(`t${other}_p2`).innerText];
+            const av = local_players.filter(p => !busy.includes(p.name)).sort(() => Math.random() - 0.5);
+            if(av.length < 2) return alert("Pemain Kurang!");
+            document.getElementById(`t${t}_p1`).innerText = av[0].name;
+            document.getElementById(`t${t}_p2`).innerText = av[1].name;
         }
 
         function adjustScore(id, v) { let e = document.getElementById(id); e.innerText = Math.max(0, parseInt(e.innerText) + v); }
 
         function downloadKlasemen() {
             html2canvas(document.getElementById('share-area'), { backgroundColor: "#020617" }).then(c => {
-                let l = document.createElement('a'); l.download = 'BJK-Tournament.jpg'; l.href = c.toDataURL(); l.click();
+                let l = document.createElement('a'); l.download = 'BJK.jpg'; l.href = c.toDataURL(); l.click();
             });
         }
 
         _supabase.channel('db').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, loadData)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, loadData).subscribe();
-
+        
         loadData();
     </script>
 </body>
